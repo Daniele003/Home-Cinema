@@ -1,0 +1,109 @@
+/********************************************
+ * z-index map                              *
+ ********************************************
+ * 0    default                             *
+ *                                          *
+ * 1    film-popup                          *
+ *                                          *
+ * 10   navigation bar                      *
+ *                                          *
+ * 11   popup                               *
+ ********************************************
+*/
+
+
+div.navigationbar {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: -webkit-fill-available;
+    height: auto;
+    background-color: rgb(0, 170, 170);
+    z-index: 10;
+}
+
+div.logo {
+    font-family: Star Wars;
+    font-size: 20px;
+    padding: unset;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    text-align: center;
+    justify-content: space-evenly;
+}
+
+div.logo>img {
+    width: 4em;
+}
+
+div.card {
+    width: 12em;
+    height: 30em;
+    box-shadow: 0px 0px 5px black;
+    border-radius: 1em;
+    padding: unset;
+    margin: 1em;
+    overflow: hidden;
+    transition: all 0.25s;
+    cursor: none;
+}
+
+.button:hover {
+    box-shadow: 0px 0px 25px black;
+    transition: all 0.5s;
+}
+
+
+div.film-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.popup {
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    background-color: hsla(0deg, 0%, 0%, 0.6);
+    padding: 10em 10% 4em 10%;
+    position: fixed;
+    z-index: 11;
+}
+
+.popup>.container {
+    background-color: white;
+    height: -webkit-fill-available;
+    overflow-x: auto;
+    border-radius: 1rem;
+}
+
+.popup>.container>.close {
+    width: 2em;
+    margin-right: 0px;
+    margin-left: auto;
+    top: 0;
+    background-color: white;
+    overflow: hidden;
+    position: sticky;
+    border-radius: 50%;
+    transition: all 0.5s;
+}
+
+.popup>.container>.close:hover {
+    transform: rotateZ(360deg);
+    background-color: grey;
+}
+
+div.film-popup {
+    z-index: 1;
+}
+
+.hide {
+    display: none;
+}

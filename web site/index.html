@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="master.css">
+    <link rel="icon" href="images/logo.png">
+    <title>Home Cinema</title>
+</head>
+
+<body style="display: flex; align-items: center; justify-content: center;">
+    <div id="documentContainer"
+        style="display: flex; justify-content: center; align-items: center; text-align: center; color: red; font-size: 128px; font-family: Star Wars; transition: all 1s;">
+        <img id="logos" src="images/logo.png" alt="logo"
+            style="width: 0px; transition: width 3s, transform 2s, opacity 1s; opacity: 1;">
+        <div>
+            <div
+                style="background: -webkit-linear-gradient(red, darkred); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                Home Cinema </div>
+            <div
+                style="font-size: 0.2em; background: -webkit-linear-gradient(#eee, #333); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                L'ho raccolta nel giardino di Beorn La pianterò nel mio giardino </div>
+        </div>
+    </div>
+    <script>
+        setTimeout(() => { location.replace("pages/home.php"); }, 10000)
+        // -- animazione testo --
+        var target = document.getElementById("documentContainer");
+        var animation = setInterval(() => {
+            target.style.fontSize = (parseInt(target.style.fontSize) - 4) + "px";
+            if (parseInt(target.style.fontSize) <= 0) {
+                clearTimeout(animation);
+                setTimeout(() => {
+                    // -- animazione logo --
+                    target = document.getElementById("logos");
+                    target.style.width = "50%";
+                    setTimeout(() => {
+                        // -- opacity animation --
+                        setInterval(() => {
+                            if (target.style.opacity == "1") {
+                                target.style.opacity = "0.5";
+                            } else {
+                                target.style.opacity = "1";
+                            }
+                        }, 1000);
+                        setTimeout(() => {
+                            // -- transform animation --
+                            setInterval(() => {
+                                if (target.style.transform == "rotateY(360deg)") {
+                                    target.style.transform = "rotateY(0deg)";
+                                } else {
+                                    target.style.transform = "rotateY(360deg)";
+                                }
+                            }, 2000);
+                        }, 1000)
+                    }, 1000);
+                }, 1000);
+            }
+        }, 100);
+    </script>
+</body>
+
+</html>

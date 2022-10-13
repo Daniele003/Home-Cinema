@@ -1,0 +1,85 @@
+/*
+ *
+ *Pulizia Foglio
+ *
+ */
+
+
+html {
+    min-height: 100%;
+}
+
+body {
+    margin: 0px;
+    height: 100%;
+}
+
+div {
+    padding: 1%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+img {
+    user-drag: none;
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    width: 100%;
+}
+
+textarea {
+    resize: none;
+}
+
+.input {
+    border: solid 3px lightgray;
+    border-radius: 5px;
+    width: Calc(100% - 4rem);
+    padding: 0.4rem 2rem 0.4rem 2rem;
+}
+
+/*
+ *
+ * definizione font
+ *
+ */
+
+@font-face {
+    font-family: Star Wars;
+    src: url('installations/star_jedi/starjedi/Starjedi.ttf');
+}
+
+@font-face {
+    font-family: Star Wars Bordered;
+    src: url('installations/star_jedi/starjedi/Starjhol.ttf');
+}
+
+/*
+ *
+ * personalizzazione barra scorrimento
+ *
+ */
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
