@@ -32,7 +32,7 @@
 
 <body>
     <script>
-        document.write(navbar(true));
+        document.body.appendChild(navbar(true));
     </script>
     <div id="main">
         <div>

@@ -14,27 +14,39 @@
 
 <body>
     <script>
-        document.write(navbar(true, true, true));
+        document.body.appendChild(navbar(true, true, true));
     </script>
-    <div class="film-list">
+    <div class="film-list" style="transition: all 1s;">
+        <div>
+            <div class="card button cached" style="border: dashed 3px grey; background-color: lightgrey; background-image: url('../images/add.png'); background-size: contain;" onclick="location.assign('addFilm.html.php');"></div>
+        </div>
         <script type="text/javascript">
             <?php
             include './phpFunctions/MyLibrary.php';
             include './phpFunctions/dbLibrary.php';
+            $counter = 0;
             $query = "SELECT * FROM film ORDER BY titolo ASC";
             $result = dbQuery(null, $query, false);
             if (mysqli_num_rows($result) === 0) {
                 print "document.write(\"<div>there are no films to display</div>\");";
             }
-            while ($target = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-                print "document.write(FilmCard(\"" . clearText($target["titolo"]) . "\", \"" . clearText($target["titolo_originale"]) . "\", \"" . clearText($target["locandina"]) . "\", \"" . clearText($target["intro"]) . "\", \"" . clearText($target["trama"]) . "\", " . $target["durata"] . ", " . $target["uscita"] . "));
-            ";
+            for ($counter = 0; $target = mysqli_fetch_array($result, MYSQLI_ASSOC); $counter++) {
+                //fare un vettore in javascript con tutti i film
+                print "document.getElementsByClassName('film-list')[0].appendChild(FilmCard(\"" . clearText($target["titolo"]) . "\", \"" . clearText($target["titolo_originale"]) . "\", \"" . clearText($target["locandina"]) . "\", \"" . clearText($target["intro"]) . "\", \"" . clearText($target["trama"]) . "\", " . $target["durata"] . ", " . $target["uscita"] . "));";
             }
             ?>
+            setTimeout(() => {
+                let lista = document.getElementsByClassName('film-list')[0].getElementsByClassName('cached');
+                let i = 0;
+                let cicle = setInterval(() => {
+                    if (i < lista.length) {
+                        lista[i].className = lista[i].className.replace('cached');
+                        //i += 1;//non necessario poichè javascript utilizza liste dinamiche e quindi ogni volta viene aggiornata automaticamente
+                    }
+                    //alert("lunghezza lista: " + lista.length);
+                }, 200);
+            }, 250);
         </script>
-        <div>
-            <div class="card card-unhover" style="border: dashed 3px grey; background-color: lightgrey; background-image: url('../images/add.png'); background-size: contain;" onclick="location.assign('addFilm.html.php');"></div>
-        </div>
     </div>
     <div>
     </div>
