@@ -177,3 +177,19 @@ function notState(target_id) {
     else
         target.className = target.className + " hide ";
 }
+
+class Film{
+    constructor(titolo, titolo_originale, locandina, intro, trama, durata, anno, generi){
+        this.t = titolo;
+        this.to = titolo_originale;
+        this.l = locandina;
+        this.i = intro;
+        this.t = trama;
+        this.d = durata;
+        this.a = anno;
+        this.g = generi;
+    }
+    setGeneri(generi){
+        this.g = generi;
+    }
+}

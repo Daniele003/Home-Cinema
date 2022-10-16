@@ -21,6 +21,14 @@
             <div class="card button cached" style="border: dashed 3px grey; background-color: lightgrey; background-image: url('../images/add.png'); background-size: contain;" onclick="location.assign('addFilm.html.php');"></div>
         </div>
         <script type="text/javascript">
+            const films = new Array();
+            let push_in = null;
+            function addGenres(key_titolo, key_anno, genre_array){
+                let i;
+                for(i = 0; i < films.length; i++){
+
+                }
+            }
             <?php
             include './phpFunctions/MyLibrary.php';
             include './phpFunctions/dbLibrary.php';
@@ -31,8 +39,11 @@
                 print "document.write(\"<div>there are no films to display</div>\");";
             }
             for ($counter = 0; $target = mysqli_fetch_array($result, MYSQLI_ASSOC); $counter++) {
-                //fare un vettore in javascript con tutti i film
-                print "document.getElementsByClassName('film-list')[0].appendChild(FilmCard(\"" . clearText($target["titolo"]) . "\", \"" . clearText($target["titolo_originale"]) . "\", \"" . clearText($target["locandina"]) . "\", \"" . clearText($target["intro"]) . "\", \"" . clearText($target["trama"]) . "\", " . $target["durata"] . ", " . $target["uscita"] . "));";
+                print "
+document.getElementsByClassName('film-list')[0].appendChild(FilmCard(\"" . clearText($target["titolo"]) . "\", \"" . clearText($target["titolo_originale"]) . "\", \"" . clearText($target["locandina"]) . "\", \"" . clearText($target["intro"]) . "\", \"" . clearText($target["trama"]) . "\", " . $target["durata"] . ", " . $target["uscita"] . "));
+push_in = new Film(\"" . clearText($target["titolo"]) . "\", \"" . clearText($target["titolo_originale"]) . "\", \"" . clearText($target["locandina"]) . "\", \"" . clearText($target["intro"]) . "\", \"" . clearText($target["trama"]) . "\", " . $target["durata"] . ", " . $target["uscita"] . ", null);
+films.push(push_in);
+console.log(push_in);";
             }
             ?>
             setTimeout(() => {
