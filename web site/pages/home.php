@@ -21,12 +21,17 @@
             <div class="card button cached" style="border: dashed 3px grey; background-color: lightgrey; background-image: url('../images/add.png'); background-size: contain;" onclick="location.assign('addFilm.html.php');"></div>
         </div>
         <script type="text/javascript">
-            const films = new Array();
+            var films = new Array();
             let push_in = null;
-            function addGenres(key_titolo, key_anno, genre_array){
-                let i;
-                for(i = 0; i < films.length; i++){
 
+            function addGenres(key_titolo, key_anno, genre_array) {
+                //alert("addGenres(key_titolo, key_anno, genre_array)...addGenres(" + key_titolo + ", " + key_anno + ", " + genre_array + ")");
+                let i, exit = false;
+                for (i = 0; i < films.length && !exit; i++) {
+                    if (films[i].to == key_titolo && films[i].a == key_anno) {
+                        films[i].setGeneri(genre_array);
+                        exit = true;
+                    }
                 }
             }
             <?php
@@ -45,6 +50,26 @@ push_in = new Film(\"" . clearText($target["titolo"]) . "\", \"" . clearText($ta
 films.push(push_in);
 console.log(push_in);";
             }
+            print "
+var temp_genre_array = null;";
+            $query = "SELECT film_title, film_year, genre_name FROM `film-genere` ORDER BY film_year DESC, film_title ASC, genre_name ASC";
+            $result = dbQuery(null, $query, false);
+            $target_title = null;
+            $target_year = null;
+            while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+                if ($target_title != $row["film_title"] || $target_year != $row["film_year"]) {
+                    print "
+addGenres(\"$target_title\", '$target_year', temp_genre_array);
+temp_genre_array = new Array('" . $row["genre_name"] . "');";
+                    $target_title = $row["film_title"];
+                    $target_year = $row["film_year"];
+                } else {
+                    print "
+temp_genre_array.push('" . $row["genre_name"] . "');";
+                }
+                $target_title = $row["film_title"];
+                $target_year = $row["film_year"];
+            }
             ?>
             setTimeout(() => {
                 let lista = document.getElementsByClassName('film-list')[0].getElementsByClassName('cached');
@@ -53,6 +78,7 @@ console.log(push_in);";
                     if (i < lista.length) {
                         lista[i].className = lista[i].className.replace('cached');
                         //i += 1;//non necessario poichè javascript utilizza liste dinamiche e quindi ogni volta viene aggiornata automaticamente
+                        //inoltre grazie a questa proprietà se stamapti i valori ad esempio un oggetto in console non saranno statici, ma verranno aggiornati assieme all'oggeto senza alcun bisogno di ristamparlo
                     }
                     //alert("lunghezza lista: " + lista.length);
                 }, 200);
