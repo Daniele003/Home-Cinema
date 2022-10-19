@@ -48,7 +48,7 @@ div.card {
     padding: unset;
     margin: 1em;
     overflow: hidden;
-    transition: all 0.25s;
+    transition: all 1s;
     cursor: none;
 }
 
@@ -61,7 +61,7 @@ div.card {
 div.film-list {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: center;
 }
 
 .popup {
@@ -108,6 +108,10 @@ div.film-popup {
 }
 .card.cached {
     height: 0px;
+}
+
+.card.hcached{
+    width: 0px;
 }
 
 .input-inside{

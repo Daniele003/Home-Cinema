@@ -16,24 +16,16 @@
     <script>
         document.body.appendChild(navbar(true, true, true));
     </script>
+    <div>
+        <!-- pulsanti per riordinare lista film dopo la ricerca e etichette per selezionare i generi secondo cui filtrare -->
+    </div>
     <div class="film-list" style="transition: all 1s;">
         <div>
             <div class="card button cached" style="border: dashed 3px grey; background-color: lightgrey; background-image: url('../images/add.png'); background-size: contain;" onclick="location.assign('addFilm.html.php');"></div>
         </div>
         <script type="text/javascript">
-            var films = new Array();
             let push_in = null;
 
-            function addGenres(key_titolo, key_anno, genre_array) {
-                //alert("addGenres(key_titolo, key_anno, genre_array)...addGenres(" + key_titolo + ", " + key_anno + ", " + genre_array + ")");
-                let i, exit = false;
-                for (i = 0; i < films.length && !exit; i++) {
-                    if (films[i].to == key_titolo && films[i].a == key_anno) {
-                        films[i].setGeneri(genre_array);
-                        exit = true;
-                    }
-                }
-            }
             <?php
             include './phpFunctions/MyLibrary.php';
             include './phpFunctions/dbLibrary.php';
@@ -45,13 +37,16 @@
             }
             for ($counter = 0; $target = mysqli_fetch_array($result, MYSQLI_ASSOC); $counter++) {
                 print "
-document.getElementsByClassName('film-list')[0].appendChild(FilmCard(\"" . clearText($target["titolo"]) . "\", \"" . clearText($target["titolo_originale"]) . "\", \"" . clearText($target["locandina"]) . "\", \"" . clearText($target["intro"]) . "\", \"" . clearText($target["trama"]) . "\", " . $target["durata"] . ", " . $target["uscita"] . "));
 push_in = new Film(\"" . clearText($target["titolo"]) . "\", \"" . clearText($target["titolo_originale"]) . "\", \"" . clearText($target["locandina"]) . "\", \"" . clearText($target["intro"]) . "\", \"" . clearText($target["trama"]) . "\", " . $target["durata"] . ", " . $target["uscita"] . ", null);
 films.push(push_in);
+console.log(\"Film [$counter]\");
 console.log(push_in);";
             }
             print "
-var temp_genre_array = null;";
+var temp_genre_array = null;
+console.clear();
+console.log(\"lista film completa:\");
+console.log(films);";
             $query = "SELECT film_title, film_year, genre_name FROM `film-genere` ORDER BY film_year DESC, film_title ASC, genre_name ASC";
             $result = dbQuery(null, $query, false);
             $target_title = null;
@@ -71,17 +66,21 @@ temp_genre_array.push('" . $row["genre_name"] . "');";
                 $target_year = $row["film_year"];
             }
             ?>
+            for (let i = 0; i < films.length; i++) {
+                document.getElementsByClassName('film-list')[0].appendChild(FilmCard(films[i]));
+            }
             setTimeout(() => {
                 let lista = document.getElementsByClassName('film-list')[0].getElementsByClassName('cached');
-                let i = 0;
                 let cicle = setInterval(() => {
-                    if (i < lista.length) {
-                        lista[i].className = lista[i].className.replace('cached');
+                    if (0 < lista.length) {
+                        lista[0].className = lista[0].className.replace('cached', 'not-c.a.c.h.e.d');
                         //i += 1;//non necessario poichè javascript utilizza liste dinamiche e quindi ogni volta viene aggiornata automaticamente
                         //inoltre grazie a questa proprietà se stamapti i valori ad esempio un oggetto in console non saranno statici, ma verranno aggiornati assieme all'oggeto senza alcun bisogno di ristamparlo
+                    } else {
+                        clearInterval(cicle);
                     }
                     //alert("lunghezza lista: " + lista.length);
-                }, 200);
+                }, 25);
             }, 250);
         </script>
     </div>
