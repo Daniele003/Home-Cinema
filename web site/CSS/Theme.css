@@ -76,6 +76,7 @@ div.film-list {
 }
 
 .popup>.container {
+    transition: opacity 1s;
     background-color: white;
     height: -webkit-fill-available;
     overflow-x: auto;

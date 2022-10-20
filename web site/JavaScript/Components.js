@@ -18,8 +18,23 @@ class Film {
     }
 }
 
+function getCookieValue(nome) {
+    let cookies = document.cookie.split(";");
+    console.log("cookies:");
+    console.log(cookies);
+    for (let index = 0; index < cookies.length; index++) {
+        let [name, value] = cookies[index].split("=");
+        console.log("cookies[" + index + "][name: " + name + ", value: " + value + "]");
+        if (name == nome)
+            return value;
+    }
+    console.log("cookie not found");
+    return "";
+}
+
 var films = new Array();
-var found_results = new Array();
+var found_results = films;
+var random_history = new Array();
 
 function addGenres(key_titolo, key_anno, genre_array) {
     //alert("addGenres(key_titolo, key_anno, genre_array)...addGenres(" + key_titolo + ", " + key_anno + ", " + genre_array + ")");
@@ -79,8 +94,8 @@ function navbar(logo, search, random) {
         inbar.id = "research";
         inbar.type = "search";
         inbar.placeholder = "Cerca ...";
-        inbar.setAttribute("oninput", "filter_title();");
-        inbar.setAttribute("onsearch", "search_title();");
+        inbar.setAttribute("oninput", "filter_title(); document.cookie = \"search=\" + this.value + \";\";");
+        inbar.setAttribute("onsearch", "console.log(\"search value: \" + this.value);search_title();");
         search.appendChild(inbar);
         let enter = document.createElement("div");
         enter.className = "input-inside button push";
@@ -99,6 +114,8 @@ function navbar(logo, search, random) {
         let image = document.createElement("img");
         image.src = "../images/dice.png";
         dice.appendChild(image);
+        let f = "if (random_history.length > 0) {close_it(random_history[random_history.length - 1].ID, /*100*/0);}let nuovo = found_results[(Math.floor(Math.random() * found_results.length))];while (nuovo == random_history[random_history.length - 1]) {nuovo = found_results[(Math.floor(Math.random() * found_results.length))];}random_history.push(nuovo); notState(random_history[random_history.length - 1].ID);";
+        dice.setAttribute("onclick", f);
         nb.appendChild(dice);
     }
     return nb;
@@ -179,9 +196,18 @@ function notState(target_id) {
         target.className = target.className + " hide ";
 }
 
+function close_it(target_id, tempo_di_sfumo) {
+    let target = document.getElementById(target_id);
+    //target.getElementsByClassName("container")[0].style.opacity = "0";
+    setTimeout(() => {
+        target.className = target.className + " hide ";
+    }, tempo_di_sfumo);
+}
+
 function filter_title() {
     let search_input = document.getElementById('research').value;
-    if (search_input == "") {
+    if (!(search_input.trim())) {
+        found_results = films;
         search_title();
     } else {
         let found_titolo = new Array();
@@ -221,6 +247,7 @@ function filter_title() {
 
 function search_title() {
     console.log("i'm in!!");
+    filter_title();
     console.log(found_results);
     for (let i = 0; i < films.length; i++) {
         let temp_id = films[i].ID;

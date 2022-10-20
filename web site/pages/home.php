@@ -15,6 +15,7 @@
 <body>
     <script>
         document.body.appendChild(navbar(true, true, true));
+        document.getElementById('research').value = getCookieValue("search");
     </script>
     <div>
         <!-- pulsanti per riordinare lista film dopo la ricerca e etichette per selezionare i generi secondo cui filtrare -->
@@ -44,7 +45,7 @@ console.log(push_in);";
             }
             print "
 var temp_genre_array = null;
-console.clear();
+//console.clear();
 console.log(\"lista film completa:\");
 console.log(films);";
             $query = "SELECT film_title, film_year, genre_name FROM `film-genere` ORDER BY film_year DESC, film_title ASC, genre_name ASC";
