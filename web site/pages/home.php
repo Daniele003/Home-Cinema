@@ -83,6 +83,7 @@ temp_genre_array.push('" . $row["genre_name"] . "');";
                     //alert("lunghezza lista: " + lista.length);
                 }, 25);
             }, 250);
+            search_title();
         </script>
     </div>
     <div>

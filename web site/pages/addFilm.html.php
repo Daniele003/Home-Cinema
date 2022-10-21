@@ -19,7 +19,7 @@
 
         function setG(nomeG) {
             nomeG = "--" + nomeG + "--";
-            let target = document.getElementById('9');
+            let target = document.getElementById('10');
             if (target.value.includes(nomeG)) {
                 target.value = target.value.replace(nomeG, "");
             } else {
@@ -87,9 +87,40 @@
                         document.getElementById('8').setAttribute('max', (new Date()).getFullYear())
                     </script>
                 </div>
-                <div>
-                    <label class="" for="9">Genere</label>
+                <div id="list-links-streaming">
+                    <script type="text/javascript">
+                        let id = 0;
+
+                        function newLink() {
+                            let in_links_element = document.createElement("div");
+                            let in_links_label = document.createElement("label");
+                            in_links_label.className = "input input-left-out-target";
+                            in_links_label.setAttribute("for", "inlink" + id);
+                            in_links_label.appendChild(document.createTextNode((id + 1) + "° link per lo streaming"));
+                            let in_links_input = document.createElement("input");
+                            in_links_input.className = "input";
+                            in_links_input.setAttribute("type", "url");
+                            in_links_input.setAttribute("name", "streaming" + id);
+                            in_links_input.id = "inlink" + id;
+                            let in_links_button = document.createElement("input");
+                            in_links_button.type = "button";
+                            in_links_button.value = "Annulla";
+                            in_links_button.className = "input";
+                            in_links_button.setAttribute("onclick", "this.parentNode.style = \"height: 0px; overflow: hidden; padding: 0px;\"; document.getElementById('inlink" + id++ + "').value = \"\";");
+                            in_links_element.appendChild(in_links_label);
+                            in_links_element.appendChild(in_links_input);
+                            in_links_element.appendChild(in_links_button);
+                            return in_links_element;
+                        }
+                    </script>
                     <div>
+                        <input type="button" class="input" value="aggiungi un link per lo streaming" onclick="document.getElementById('list-links-streaming').appendChild(newLink()); ">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="" for="10">Genere</label>
+                    <div class="hlist">
                         <?php
                         include './phpFunctions/MyLibrary.php';
                         include './phpFunctions/dbLibrary.php';
@@ -105,10 +136,10 @@
                         }
                         ?>
                     </div>
-                    <input class="input" type="hidden" name="genres" id="9">
+                    <input class="input" type="hidden" name="genres" id="10">
                 </div>
                 <div>
-                    <input type="submit" value="Inserisci">
+                    <input type="submit" class="input" value="Inserisci">
                 </div>
             </form>
         </div>

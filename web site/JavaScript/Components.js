@@ -94,7 +94,7 @@ function navbar(logo, search, random) {
         inbar.id = "research";
         inbar.type = "search";
         inbar.placeholder = "Cerca ...";
-        inbar.setAttribute("oninput", "filter_title(); document.cookie = \"search=\" + this.value + \";\";");
+        inbar.setAttribute("oninput", "search_title(); document.cookie = \"search=\" + this.value + \";\";");
         inbar.setAttribute("onsearch", "console.log(\"search value: \" + this.value);search_title();");
         search.appendChild(inbar);
         let enter = document.createElement("div");
@@ -208,7 +208,7 @@ function filter_title() {
     let search_input = document.getElementById('research').value;
     if (!(search_input.trim())) {
         found_results = films;
-        search_title();
+        //search_title();
     } else {
         let found_titolo = new Array();
         let found_title = new Array();

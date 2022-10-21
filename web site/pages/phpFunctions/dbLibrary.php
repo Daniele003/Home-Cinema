@@ -6,11 +6,13 @@ function dbConnection()
 }
 function dbQuery($connection, $query, $echo)
 {
+    if ($echo)
+        print "<p>$query<br>";
     if (!$connection)
         $connection = dbConnection();
     $result = mysqli_query($connection, $query) or die("QUERY ERROR");
     if ($echo)
-        print "<br>$query<br>$result<br>";
+        print "$result</p>";
     if (!$connection)
         mysqli_close($connection);
     return $result;

@@ -115,6 +115,13 @@ div.film-popup {
     width: 0px;
 }
 
+.hlist{
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
 .input-inside{
     position: absolute;
 }
