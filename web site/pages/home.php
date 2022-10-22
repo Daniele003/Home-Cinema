@@ -30,43 +30,23 @@
             <?php
             include './phpFunctions/MyLibrary.php';
             include './phpFunctions/dbLibrary.php';
-            $counter = 0;
-            $query = "SELECT * FROM film ORDER BY titolo ASC";
+            $query = "SELECT `titolo`, `titolo_originale`, `uscita`, `locandina`, `intro`, `trama`, `durata`, `lingua_originale`, `genre_name`, `link` FROM (`film` AS F LEFT JOIN `film-genere` AS G ON F.titolo_originale = G.film_title AND F.uscita = G.film_year)LEFT JOIN `external_streaming` AS S ON F.titolo_originale = S.film_orignal_title AND F.uscita = S.film_release_year ORDER BY F.uscita DESC, F.titolo ASC";
             $result = dbQuery(null, $query, false);
             if (mysqli_num_rows($result) === 0) {
                 print "document.write(\"<div>there are no films to display</div>\");";
-            }
-            for ($counter = 0; $target = mysqli_fetch_array($result, MYSQLI_ASSOC); $counter++) {
-                print "
-push_in = new Film(\"" . clearText($target["titolo"]) . "\", \"" . clearText($target["titolo_originale"]) . "\", \"" . clearText($target["locandina"]) . "\", \"" . clearText($target["intro"]) . "\", \"" . clearText($target["trama"]) . "\", " . $target["durata"] . ", " . $target["uscita"] . ", null);
+            } else {
+                while ($row_target = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
+                    print "
+//SELECT `titolo`, `titolo_originale`, `uscita`, `locandina`, `intro`, `trama`, `durata`, `lingua_originale`, `genre_name`, `link`
+//constructor(                                  titolo,                                       titolo_originale,                                       locandina,                                       intro,                                       trama,                           durata,                         anno,                         generi,                   streaming  )
+push_in = new Film(\"" . clearText($row_target["titolo"]) . "\", \"" . clearText($row_target["titolo_originale"]) . "\", \"" . clearText($row_target["locandina"]) . "\", \"" . clearText($row_target["intro"]) . "\", \"" . clearText($row_target["trama"]) . "\", " . $row_target["durata"] . ", " . $row_target["uscita"] . ", \"" . $row_target["genre_name"] . "\", \"" . $row_target["link"] . "\");
 films.push(push_in);
-console.log(\"Film [$counter]\");
+console.log(\"added Film: \");
 console.log(push_in);";
-            }
-            print "
-var temp_genre_array = null;
-//console.clear();
-console.log(\"lista film completa:\");
-console.log(films);";
-            $query = "SELECT film_title, film_year, genre_name FROM `film-genere` ORDER BY film_year DESC, film_title ASC, genre_name ASC";
-            $result = dbQuery(null, $query, false);
-            $target_title = null;
-            $target_year = null;
-            while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC)) {
-                if ($target_title != $row["film_title"] || $target_year != $row["film_year"]) {
-                    print "
-addGenres(\"$target_title\", '$target_year', temp_genre_array);
-temp_genre_array = new Array('" . $row["genre_name"] . "');";
-                    $target_title = $row["film_title"];
-                    $target_year = $row["film_year"];
-                } else {
-                    print "
-temp_genre_array.push('" . $row["genre_name"] . "');";
                 }
-                $target_title = $row["film_title"];
-                $target_year = $row["film_year"];
             }
             ?>
+            films = distinct_keys(new Array("to", "a"), new Array("g", "s"), films, films.length);
             for (let i = 0; i < films.length; i++) {
                 document.getElementsByClassName('film-list')[0].appendChild(FilmCard(films[i]));
             }

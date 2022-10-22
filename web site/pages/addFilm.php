@@ -50,7 +50,6 @@
         $query = "INSERT INTO `external_streaming` (`film_orignal_title`, `film_release_year`, `link`) VALUES ('" . clearText($titolo_originale) . "','" . clearText($uscita) . "','" . clearText($link_streaming[$i]) . "')";
         dbQuery($db, $query, true);
     }
-    #fare ciclo per query di link multipli per lo streaming esterno
     ?>
     <script>
         /*

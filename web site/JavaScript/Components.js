@@ -1,5 +1,5 @@
 class Film {
-    constructor(titolo, titolo_originale, locandina, intro, trama, durata, anno, generi) {
+    constructor(titolo, titolo_originale, locandina, intro, trama, durata, anno, generi, streaming) {
         this.ti = titolo;
         this.to = titolo_originale;
         this.l = locandina;
@@ -8,13 +8,30 @@ class Film {
         this.d = durata;
         this.a = anno;
         this.g = generi;
+        this.s = streaming;
         this.ID = null;
     }
     setGeneri(generi) {
         this.g = generi;
     }
+    setStreaming(links) {
+        this.s = links;
+    }
     setID(ID) {
         this.ID = ID;
+    }
+}
+
+function search_value_index(array, value, critical, default_value) {
+    for (let index = 0; index < array.length; index++) {
+        if (array[index] == value)
+            return index;
+    }
+    if (!(critical))
+        return "not found";
+    else {
+        console.log("search_value_index ERROR:: " + value + " not found in " + array + " retur dafault as: " + default_value);
+        return default_value;
     }
 }
 
@@ -36,12 +53,97 @@ var films = new Array();
 var found_results = films;
 var random_history = new Array();
 
+function ricerca(row, array, keys_array) {
+    //console.log("ricerca ("); console.log(row); console.log(", "); console.log(array); console.log(", "); console.log(keys_array + ")");
+    for (let index = 0; index < array.length; index++) {
+        let equal = true;
+        for (let index2 = 0; index2 < keys_array.length; index2++) {
+            //console.log("equal = " + equal + " && " + array[index][keys_array[index2]] + " == " + row[keys_array[index2]]);
+            equal = equal && array[index][keys_array[index2]] == row[keys_array[index2]];
+        }
+        if (equal)
+            return index;
+    }
+    return -1;
+}
+
+function distinct_keys(indexes_forCheck, indexes_forSave, object_array, accuracy_check) {
+    console.log("distinct_keys([" + indexes_forCheck + "], [" + object_array + "], " + accuracy_check + ")");
+    if (object_array && (indexes_forCheck || indexes_forCheck == 0) && indexes_forCheck.length > 0 && object_array.length > 0 && accuracy_check > 0) {
+        if (object_array.length > 1) {
+            let list = new Array();
+            /**
+             * ALGORITMO
+             * ********************************
+             * scansione del vettore di oggetti
+             * scansione degli indici dell'oggetto specificati dal vettore degli indici di controllo
+             * impostazione degli indici dell'oggetto di salvataggio duplicità come vettori inizializzati con il valore dell'indice di quell'oggetto
+             * aggiunta dei valore presente negli oggetti duplicati, nel vettore creato negli indici di salvataggio negli oggetti unici
+             */
+            console.clear();
+            for (let index1 = 0; index1 < object_array.length; index1++) {
+                //ciclo di scansione del vettore 'object_array'
+                console.log("⇢ selected object:");
+                console.log(object_array[index1]);
+                //console.log("⇢ index1: " + index1);
+                let found_at = ricerca(object_array[index1], list, indexes_forCheck);
+                if (found_at == -1) {
+                    list.push(object_array[index1]);
+                    for (let index2 = 0; index2 < indexes_forSave.length; index2++) {
+                        let target = object_array[index1][indexes_forSave[index2]];
+                        //ciclo di inizializzazione vettori di salvataggio valori di duplicità
+                        console.log("⇢ index1: " + index1);
+                        console.log("⇢⇢ index2: " + index2);
+                        console.log("⇢⇢ found_at: " + found_at);
+                        if (!target)
+                            target = 0;
+                        object_array[index1][indexes_forSave[index2]] = new Array(target);
+                    }
+                    console.log("added in list at: [" + ricerca(object_array[index1], list, indexes_forCheck) + "]");
+                } else {
+                    for (let index2 = 0; index2 < indexes_forSave.length; index2++) {
+                        //ciclo di push di singolo valore a in tutti gli indici di duplicità vettori di salvataggio valori di duplicità
+                        let target = object_array[index1];
+                        let found_at2 = ricerca(target, list, indexes_forCheck);
+                        if (found_at2 != -1) {
+                            console.log("added at [" + found_at2 + "][" + indexes_forSave[index2] + "]: " + target[indexes_forSave[index2]]);
+                            let checker = target[indexes_forSave[index2]];
+                            if (checker)
+                                list[found_at2][indexes_forSave[index2]].push(checker);
+                        }
+                        console.log("index1: " + index1);
+                        console.log("⇢⇢ index2: " + index2);
+                        console.log("⇢⇢ found_at: " + found_at);
+                        console.log("⇢⇢⇢ target: ");
+                        console.log(target);
+                        console.log("⇢⇢⇢ found_at2: " + found_at2);
+                    }
+                }
+            }
+            console.log(list);
+            return list;
+        } else {
+            return object_array;
+        }
+    }
+}
+
 function addGenres(key_titolo, key_anno, genre_array) {
-    //alert("addGenres(key_titolo, key_anno, genre_array)...addGenres(" + key_titolo + ", " + key_anno + ", " + genre_array + ")");
+    //console.log("addGenres(key_titolo, key_anno, genre_array)...addGenres(" + key_titolo + ", " + key_anno + ", " + genre_array + ")");
     let i, exit = false;
     for (i = 0; i < films.length && !exit; i++) {
         if (films[i].to == key_titolo && films[i].a == key_anno) {
             films[i].setGeneri(genre_array);
+            exit = true;
+        }
+    }
+}
+function addStreaming(key_titolo, key_anno, links_array) {
+    //console.log("addGenres(key_titolo, key_anno, links_array)...addGenres(" + key_titolo + ", " + key_anno + ", " + links_array + ")");
+    let i, exit = false;
+    for (i = 0; i < films.length && !exit; i++) {
+        if (films[i].to == key_titolo && films[i].a == key_anno) {
+            films[i].setStreaming(links_array);
             exit = true;
         }
     }
