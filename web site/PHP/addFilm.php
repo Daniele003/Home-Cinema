@@ -7,15 +7,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../master.css">
     <link rel="stylesheet" href="../CSS/Theme.css">
-    <link rel="icon" href="../images/logo.png">
+    <link rel="icon" href="../resources/images/icons/logo.png">
     <script src="../JavaScript/Components.js"></script>
     <title>Home Cinema | Saving New Film ...</title>
 </head>
 
 <body>
     <?php
-    include './phpFunctions/MyLibrary.php';
-    include './phpFunctions/dbLibrary.php';
+    include '../PHP/functions/MyLibrary.php';
+    include '../PHP/functions/dbLibrary.php';
     $titolo = $_POST["title"];
     $titolo_originale = $_POST["original-title"];
     $locandina = $_POST["poster"];
@@ -35,8 +35,6 @@
             }
         }
     }
-    if (!($link_streaming))
-        $link_streaming = "NULL";
     $generi = explode("--", $_POST["genres"]); // il vettore conterrà i valori corretti solo nelle posizioni dispari
     $db = dbConnection();
     $query = "INSERT INTO `film` (`titolo`, `titolo_originale`, `locandina`, `intro`, `trama`, `durata`, `lingua_originale`, `uscita`) VALUES ('" . clearText($titolo) . "','" . clearText($titolo_originale) . "','" . clearText($locandina) . "','" . clearText($intro) . "','" . clearText($trama) . "',$durata,'" . clearText($lingua_originale) . "',$uscita)";
@@ -45,7 +43,7 @@
         $query = "INSERT INTO `film-genere` (`film_title`, `film_year`, `genre_name`) VALUES ('" . clearText($titolo_originale) . "', $uscita, '" . $generi[$i] . "')";
         dbQuery($db, $query, true);
     }
-    for ($i = 0; $i < count($generi); $i += 2) {
+    for ($i = 0; $link_streaming && $i < count($link_streaming); $i += 2) {
         #print "alert('link $i: " . $link_streaming[$i] . "');";
         $query = "INSERT INTO `external_streaming` (`film_orignal_title`, `film_release_year`, `link`) VALUES ('" . clearText($titolo_originale) . "','" . clearText($uscita) . "','" . clearText($link_streaming[$i]) . "')";
         dbQuery($db, $query, true);
@@ -55,7 +53,7 @@
         /*
         setTimeout(() => {
             alert("waiting ...");*/
-        location.replace("addFilm.html.php");
+        location.replace("../pages/addFilm.html.php");
         /*
                 }, 500);
                 */

@@ -10,6 +10,9 @@
  * 11   popup                               *
  ********************************************
 */
+* {
+    font-family: Bubble;
+}
 
 div.navigationbar {
     position: -webkit-sticky;
@@ -25,7 +28,6 @@ div.navigationbar {
 }
 
 div.logo {
-    font-family: Star Wars;
     font-size: 20px;
     padding: unset;
     display: flex;
@@ -40,6 +42,10 @@ div.logo>img {
     width: 4em;
 }
 
+div.logo>p {
+    font-family: Star Wars;
+}
+
 div.card {
     width: 12em;
     height: 30em;
@@ -47,9 +53,15 @@ div.card {
     border-radius: 1em;
     padding: unset;
     margin: 1em;
-    overflow: hidden;
     transition: all 1s;
+}
+
+div.card>.anteprima {
     cursor: none;
+}
+
+div.card {
+    cursor: help;
 }
 
 .button:hover {
@@ -69,10 +81,11 @@ div.film-list {
     left: 0px;
     bottom: 0px;
     right: 0px;
-    background-color: hsla(0deg, 0%, 0%, 0.6);
+    background-color: hsla(0deg, 0%, 0%, 0.8);
     padding: 10em 10% 4em 10%;
     position: fixed;
     z-index: 11;
+    display: flex;
 }
 
 .popup>.container {
@@ -81,6 +94,8 @@ div.film-list {
     height: -webkit-fill-available;
     overflow-x: auto;
     border-radius: 1rem;
+    margin: 1%;
+    box-shadow: 0px 0px 5px white;
 }
 
 .popup>.container>.close {
@@ -107,29 +122,65 @@ div.film-popup {
 .hide {
     display: none;
 }
-.card.cached {
+
+.cached {
     height: 0px;
 }
 
-.card.hcached{
+.hcached {
     width: 0px;
 }
 
-.hlist{
+.hlist {
     display: flex;
     justify-content: space-around;
     flex-direction: row;
     flex-wrap: wrap;
 }
 
-.input-inside{
+.input-inside {
     position: absolute;
 }
 
-.button.push{
+.button.push {
     border-radius: 50%;
-    background-color: hsl(240, 50%, 25%);
-    width: 3em;
-    height: 3em;
+    width: 2.5em;
+    height: 2.5em;
     right: 0px;
+}
+
+.scrollable {
+    overflow: unset;
+}
+
+/*
+ *
+ * DROPDOWN STRUCTURE:
+ * dropdown
+ *  label
+ *   text
+ *   show button
+ *  container
+ *   ∑ element[i]
+ *
+*/
+
+.dropdown{
+    border-radius: 1rem;
+    border: solid 1px black;
+    box-shadow: 0px 0px 5px black;
+}
+
+.dropdown>.dropdown-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+.dropdown-elements{
+    transition: height 0.75s;
+}
+.dropdown-elements.hide{
+    height: 0px;
+    display: none;
 }

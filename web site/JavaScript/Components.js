@@ -150,27 +150,29 @@ function addStreaming(key_titolo, key_anno, links_array) {
 }
 
 function navbar(logo, search, random) {
-    /*
-        | HTML TRANSLATION
-        | <div class="navigationbar">
-        |  <!-- if(logo) -->
-        |  <div class="logo" id="logo" onclick="location.assign('../pages/home.php')" style="cursor: pointer;">
-        |   <img src="../images/logo.png">
-        |   Home<br>Cinema
-        |  </div>
-        |  <!-- if(search) -->
-        |  <div class="logo" style="width: 50%; position: relative;">
-        |   <input id="research" type="search" placeholder="Cerca ..." oninput="filter_title();" onsearch="search_title();">
-        |   <div class="input-inside button push" style="width: 2em; height: 2em; background-color: white;" onclick="search_title();">
-        |    <img src="../images/lente.png">
-        |   </div>
-        |  </div>
-        |  <!-- if(random) -->
-        |  <div class="button push" id="random film">
-        |   <img src="../images/dice.png">
-        |  </div>
-        | </div>
-    */
+    /**
+     *  HTML TRANSLATION
+     * **********************************************************************************************************************************
+     *  <div class="navigationbar">
+     *   <!-- if(logo) -->
+     *   <div class="logo" id="logo" onclick="location.assign('../pages/home.php')" style="cursor: pointer;">
+     *    <img src="../resources/images/icons/logo.png">
+     *    <p>Home<br>Cinema</p>
+     *   </div>
+     *   <!-- if(search) -->
+     *   <div class="logo scrollable" style="width: 50%; position: relative;">
+     *    <input id="research" type="search" placeholder="Cerca ..." oninput="filter_title();" onsearch="search_title();">
+     *    <div class="input-inside button push" style="width: 2em; height: 2em; background-color: white;" onclick="search_title();">
+     *     <img src="../images/lente.png">
+     *    </div>
+     *   </div>
+     *   <!-- if(random) -->
+     *   <div class="button push" id="random film">
+     *    <img src="../images/dice.png">
+     *   </div>
+     *  </div>
+     * **********************************************************************************************************************************
+     */
     let nb = document.createElement("div");
     nb.className = "navigationbar";
     if (logo) {
@@ -180,16 +182,18 @@ function navbar(logo, search, random) {
         logo.setAttribute("onclick", "location.assign('../pages/home.php')");
         logo.style = "cursor: pointer;";
         let image = document.createElement("img");
-        image.src = "../images/logo.png";
+        image.src = "../resources/images/icons/logo.png";
         logo.appendChild(image);
-        logo.appendChild(document.createTextNode("Home"));
-        logo.appendChild(document.createElement("br"));
-        logo.appendChild(document.createTextNode("Cinema"));
+        let paragraph = document.createElement("p");
+        paragraph.appendChild(document.createTextNode("Home"));
+        paragraph.appendChild(document.createElement("br"));
+        paragraph.appendChild(document.createTextNode("Cinema"));
+        logo.appendChild(paragraph);
         nb.appendChild(logo);
     }
     if (search) {
         let search = document.createElement("div");
-        search.className = "logo";
+        search.className = "logo scrollable";
         search.style = "width: 50%; position: relative;";
         let inbar = document.createElement("input");
         inbar.className = "input";
@@ -204,7 +208,7 @@ function navbar(logo, search, random) {
         enter.style = "width: 2em; height: 2em; background-color: white;";
         enter.setAttribute("onclick", "search_title();");
         let image = document.createElement("img");
-        image.src = "../images/lente.png";
+        image.src = "../resources/images/icons/lente.png";
         enter.appendChild(image);
         search.appendChild(enter);
         nb.appendChild(search);
@@ -213,9 +217,11 @@ function navbar(logo, search, random) {
         let dice = document.createElement("div");
         dice.className = "button push";
         dice.id = "random film";
+        dice.style = " background-color: hsl(240, 50%, 25%);";
         let image = document.createElement("img");
-        image.src = "../images/dice.png";
+        image.src = "../resources/images/icons/dice.png";
         dice.appendChild(image);
+        //rimuovere f e mettere direttamente il valore
         let f = "if (random_history.length > 0) {close_it(random_history[random_history.length - 1].ID, /*100*/0);}let nuovo = found_results[(Math.floor(Math.random() * found_results.length))];while (nuovo == random_history[random_history.length - 1]) {nuovo = found_results[(Math.floor(Math.random() * found_results.length))];}random_history.push(nuovo); notState(random_history[random_history.length - 1].ID);";
         dice.setAttribute("onclick", f);
         nb.appendChild(dice);
@@ -225,69 +231,113 @@ function navbar(logo, search, random) {
 
 function FilmCard(_film) {
     _film.setID((_film.to + " (film " + _film.a + ")").replace("\'", ""));
-    let element = document.createElement("div");
-    element.id = "parent - " + _film.ID;
-    let element2 = document.createElement("div");
-    element2.className = "card button cached";
-    element2.id = "card - " + _film.ID;
-    element2.setAttribute("onclick", "notState('" + _film.ID + "')")
-    let element3 = document.createElement("div");
-    element3.style = "background-image: url('" + _film.l + "'); width: auto; min-height: 18em;";
-    element2.appendChild(element3);
-    element3 = document.createElement("div");
-    element3.style = "padding: 1em;";
-    let element4 = document.createElement("p");
-    element4.appendChild(document.createTextNode(_film.ti));
-    element3.appendChild(element4);
-    element4 = document.createElement("p");
-    element4.appendChild(document.createTextNode(_film.a));
-    element3.appendChild(element4);
-    element4 = document.createElement("p");
-    element4.appendChild(document.createTextNode(_film.d + " min"));
-    element3.appendChild(element4);
-    element2.appendChild(element3);
-    element.appendChild(element2);
-    element.appendChild(FilmDetails(_film));
-    return element;
+    //definizione elementi
+    let parent_element_0 = document.createElement("div");
+    let p_card_element_1 = document.createElement("div");
+    let p_c_anteprima_element_1 = document.createElement("div");
+    let p_c_details_element_2 = document.createElement("div");
+    let p_c_d_titolo_element_1 = document.createElement("p");
+    let p_c_d_anno_element_2 = document.createElement("p");
+    let p_c_d_durata_element_3 = document.createElement("p");
+    //impostazione elementi
+    parent_element_0.id = "parent - " + _film.ID;
+    parent_element_0.className = "not-hidden";
+    p_card_element_1.id = "card - " + _film.ID;
+    p_card_element_1.className = "card button cached";
+    p_card_element_1.setAttribute("onclick", "notState('" + _film.ID + "');");
+    p_c_anteprima_element_1.className = "anteprima";
+    p_c_anteprima_element_1.style = "background-image: url('" + _film.l + "'); width: auto; height: 18em;";
+    p_c_details_element_2.style = "padding: 1em; height: calc(100% - 20em); display: flex; flex-direction: column; justify-content: space-around;";
+    //concatenazione gerarchia elementi
+    document.body.appendChild(parent_element_0);
+    parent_element_0.appendChild(p_card_element_1);
+    parent_element_0.appendChild(FilmDetails(_film));
+    p_card_element_1.appendChild(p_c_anteprima_element_1);
+    p_card_element_1.appendChild(p_c_details_element_2);
+    p_c_details_element_2.appendChild(p_c_d_titolo_element_1);
+    p_c_details_element_2.appendChild(p_c_d_anno_element_2);
+    p_c_details_element_2.appendChild(p_c_d_durata_element_3);
+    p_c_d_titolo_element_1.appendChild(document.createTextNode(_film.ti));
+    p_c_d_anno_element_2.appendChild(document.createTextNode(_film.a));
+    p_c_d_durata_element_3.appendChild(document.createTextNode(_film.d + " min"));
+    return parent_element_0;
 }
 
 function FilmDetails(_film_) {
-    let element = document.createElement("div");
-    element.id = _film_.ID;
-    element.className = "popup film-popup hide ";
-    let element2 = document.createElement("div");
-    element2.className = "container";
-    let element3 = document.createElement("div");
-    element3.className = "button close";
-    element3.setAttribute("onclick", "notState('" + _film_.ID + "')");
-    let element4 = document.createElement("img");
-    element4.src = "../images/close.png";
-    element3.appendChild(element4);
-    element2.appendChild(element3);
-    element3 = document.createElement("div");
-    element3.appendChild(document.createTextNode(_film_.ti));
-    element2.appendChild(element3);
-    element3 = document.createElement("div");
-    element3.appendChild(document.createTextNode(_film_.to));
-    element2.appendChild(element3);
-    element3 = document.createElement("img");
-    element3.src = _film_.l;
-    element3.style = "max-width: 30%; border-radius: 1em;";
-    element2.appendChild(element3);
-    element3 = document.createElement("div");
-    element3.appendChild(document.createTextNode(_film_.i));
-    element2.appendChild(element3);
-    element3 = document.createElement("div");
-    element3.appendChild(document.createTextNode(_film_.tr));
-    element2.appendChild(element3);
-    element3 = document.createElement("div");
-    element3.appendChild(document.createTextNode(_film_.d));
-    element2.appendChild(element3);
-    element3 = document.createElement("div");
-    element3.appendChild(document.createTextNode(_film_.a));
-    element2.appendChild(element3);
-    element.appendChild(element2);
-    return element;
+    //definizione elementi
+    let p_popup_element_2 = document.createElement("div");
+    let p_p_locandina_element_1 = document.createElement("img");
+    let p_p_informazioni_element_2 = document.createElement("div");
+    let p_p_i_bottone_element_1 = document.createElement("div");
+    let p_p_i_b_icona_element_1 = document.createElement("img");
+    let p_p_i_titles_element_2 = document.createElement("div");
+    let p_p_i_t_titolo_element_1 = document.createElement("h1");
+    let p_p_i_t_titoloOriginale_element_2 = document.createElement("h5");
+    let p_p_i_introduzione_element_4 = document.createElement("div");
+    let p_p_i_trama_element_5 = document.createElement("div");
+    let p_p_i_durata_element_6 = document.createElement("div");
+    let p_p_i_uscita_element_7 = document.createElement("div");
+    //impostazione elementi
+    p_popup_element_2.id = _film_.ID;
+    p_popup_element_2.className = "popup film-popup hide ";
+    p_p_locandina_element_1.src = _film_.l;
+    p_p_locandina_element_1.style = "overflow: unset; max-height: 100%; width: auto;";
+    p_p_locandina_element_1.className = "container";
+    p_p_informazioni_element_2.className = "container scrollable";
+    p_p_informazioni_element_2.style = "width: -webkit-fill-available;";
+    p_p_i_bottone_element_1.className = "button close";
+    p_p_i_bottone_element_1.setAttribute("onclick", "notState('" + _film_.ID + "')");
+    p_p_i_t_titolo_element_1.style = "font-family: Star Wars Bordered; margin: unset;";
+    p_p_i_t_titoloOriginale_element_2.style = "font-family: Star Wars; margin: unset;";
+    p_p_i_b_icona_element_1.src = "../resources/images/icons/close.png";
+    //concatenazione gerarchia elementi
+    p_popup_element_2.appendChild(p_p_locandina_element_1);
+    p_popup_element_2.appendChild(p_p_informazioni_element_2);
+    p_p_informazioni_element_2.appendChild(p_p_i_bottone_element_1);
+    p_p_i_titles_element_2.appendChild(p_p_i_t_titolo_element_1);
+    p_p_i_titles_element_2.appendChild(p_p_i_t_titoloOriginale_element_2);
+    p_p_informazioni_element_2.appendChild(p_p_i_titles_element_2);
+    p_p_informazioni_element_2.appendChild(p_p_i_introduzione_element_4);
+    p_p_informazioni_element_2.appendChild(p_p_i_trama_element_5);
+    p_p_informazioni_element_2.appendChild(p_p_i_durata_element_6);
+    p_p_informazioni_element_2.appendChild(p_p_i_uscita_element_7);
+    p_p_i_bottone_element_1.appendChild(p_p_i_b_icona_element_1);
+    p_p_i_t_titolo_element_1.appendChild(document.createTextNode(_film_.ti));
+    p_p_i_t_titoloOriginale_element_2.appendChild(document.createTextNode(_film_.to));
+    p_p_i_introduzione_element_4.appendChild(contentCollapse(document.createTextNode("Descrizione"), document.createTextNode(_film_.i), _film_.ID, false));
+    p_p_i_trama_element_5.appendChild(contentCollapse(document.createTextNode("Trama"), document.createTextNode(_film_.tr), _film_.ID, false));
+    p_p_i_durata_element_6.appendChild(document.createTextNode(_film_.d));
+    p_p_i_uscita_element_7.appendChild(document.createTextNode(_film_.a));
+    return p_popup_element_2;
+}
+
+function contentCollapse(etichetta, contenuto, index, disable_collapse) {
+    //definizione elementi
+    let main = document.createElement("div");
+    let label = document.createElement("div");
+    let label_content = document.createElement("h2");
+    let show = document.createElement("div");
+    let show_icon = document.createElement("img");
+    let content_indentation = document.createElement("div");
+    let container = document.createElement("div");
+    //impostazione elementi
+    main.className = "dropdown";
+    label.className = "dropdown-label";
+    container.className = "dropdown-elements hide";
+    container.id = 'dropdown - container - ' + index;
+    show.className = "button push show";
+    show_icon.alt = "mostra";
+    show_icon.src = "../resources/images/icons/dropdown.png";
+    //concatenazione gerarchia elementi
+    show.appendChild(show_icon);
+    label_content.appendChild(etichetta);
+    label.appendChild(label_content);
+    label.appendChild(show);
+    content_indentation.appendChild(contenuto);
+    container.appendChild(content_indentation);
+    main.appendChild(label);
+    main.appendChild(container);
+    return main;
 }
 
 function notState(target_id) {

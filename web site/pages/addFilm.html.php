@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../master.css">
     <link rel="stylesheet" href="../CSS/Theme.css">
-    <link rel="icon" href="../images/logo.png">
+    <link rel="icon" href="../resources/images/icons/logo.png">
     <script src="../JavaScript/Components.js"></script>
     <script>
         function linkers(title) {
@@ -43,7 +43,7 @@
                     <li><a id="3-a" target="_blank">locandina</a></li>
                 </ul>
             </div>
-            <form action="addFilm.php" method="post">
+            <form action="../PHP/addFilm.php" method="post">
                 <div>
                     <label class="input input-left-out-target" for="1">titolo</label>
                     <input class="input" oninput="linkers(this.value)" type="text" name="title" id="1" placeholder="" required maxlength="250" autocomplete="off">
@@ -101,6 +101,7 @@
                             in_links_input.className = "input";
                             in_links_input.setAttribute("type", "url");
                             in_links_input.setAttribute("name", "streaming" + id);
+                            in_links_input.setAttribute("autocomplete", "off");
                             in_links_input.id = "inlink" + id;
                             let in_links_button = document.createElement("input");
                             in_links_button.type = "button";
@@ -122,8 +123,8 @@
                     <label class="" for="10">Genere</label>
                     <div class="hlist">
                         <?php
-                        include './phpFunctions/MyLibrary.php';
-                        include './phpFunctions/dbLibrary.php';
+                        include '../PHP/functions/MyLibrary.php';
+                        include '../PHP/functions/dbLibrary.php';
                         $query = "SELECT * FROM genere";
                         $result = dbQuery(null, $query, false);
                         for ($i = 0; $riga = mysqli_fetch_array($result, MYSQLI_ASSOC); $i++) {

@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../master.css">
     <link rel="stylesheet" href="../CSS/Theme.css">
-    <link rel="icon" href="../images/logo.png">
+    <link rel="icon" href="../resources/images/icons/logo.png">
     <script src="../JavaScript/Components.js"></script>
     <title>Home Cinema | Welcome</title>
 </head>
@@ -22,14 +22,14 @@
     </div>
     <div class="film-list" style="transition: all 1s;">
         <div>
-            <div class="card button cached" style="border: dashed 3px grey; background-color: lightgrey; background-image: url('../images/add.png'); background-size: contain;" onclick="location.assign('addFilm.html.php');"></div>
+            <div class="card button cached" style="border: dashed 3px grey; background-color: lightgrey; background-image: url('../resources/images/icons/add.png'); background-size: contain; cursor: copy;" onclick="location.assign('addFilm.html.php');"></div>
         </div>
         <script type="text/javascript">
             let push_in = null;
 
             <?php
-            include './phpFunctions/MyLibrary.php';
-            include './phpFunctions/dbLibrary.php';
+            include '../PHP/functions/MyLibrary.php';
+            include '../PHP/functions/dbLibrary.php';
             $query = "SELECT `titolo`, `titolo_originale`, `uscita`, `locandina`, `intro`, `trama`, `durata`, `lingua_originale`, `genre_name`, `link` FROM (`film` AS F LEFT JOIN `film-genere` AS G ON F.titolo_originale = G.film_title AND F.uscita = G.film_year)LEFT JOIN `external_streaming` AS S ON F.titolo_originale = S.film_orignal_title AND F.uscita = S.film_release_year ORDER BY F.uscita DESC, F.titolo ASC";
             $result = dbQuery(null, $query, false);
             if (mysqli_num_rows($result) === 0) {

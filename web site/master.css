@@ -19,6 +19,11 @@ div {
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
+    overflow: hidden;
+}
+
+p {
+    margin: 0.5em;
 }
 
 img {
@@ -39,7 +44,7 @@ textarea {
     border: solid 3px lightgray;
     border-radius: 5px;
     width: Calc(100% - 4rem);
-    padding: 0.4rem 2rem 0.4rem 2rem;
+    padding: 0.6rem 2rem 0.6rem 2rem;
 }
 
 /*
@@ -48,14 +53,36 @@ textarea {
  *
  */
 
+/* star wars style */
 @font-face {
     font-family: Star Wars;
-    src: url('installations/star_jedi/starjedi/Starjedi.ttf');
+    src: url('resources/installations/star_jedi/starjedi/Starjedi.ttf');
 }
 
 @font-face {
     font-family: Star Wars Bordered;
-    src: url('installations/star_jedi/starjedi/Starjhol.ttf');
+    src: url('resources/installations/star_jedi/starjedi/Starjhol.ttf');
+}
+
+/* disney style */
+@font-face {
+    font-family: Walt Disney;
+    src: url('resources/installations/waltograph/waltographUI.ttf');
+}
+
+@font-face {
+    font-family: simple Walt Disney;
+    src: url('resources/installations/waltograph/waltograph42.otf');
+}
+
+/* good style */
+@font-face {
+    font-family: Bubble;
+    src: url('resources/installations/gummy_bears/Gummy\ Bears.ttf');
+}
+@font-face {
+    font-family: Signature;
+    src: url("resources/installations/thesignature/Thesignature.ttf");
 }
 
 /*
@@ -82,4 +109,26 @@ textarea {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+/*
+ *
+ * styling colorways class
+ *
+ */
+
+.attention{
+    color: hsl(0, 100%, 50%);
+}
+
+.warning{
+    color: hsl(39, 100%, 50%);
+}
+
+.good{
+    color: hsl(120, 100%, 50%);
+}
+
+.info{
+    color: hsl(210, 100%, 50%);
 }
