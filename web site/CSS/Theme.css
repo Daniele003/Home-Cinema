@@ -123,15 +123,15 @@ div.film-popup {
     display: none;
 }
 
-.cached {
+.card.cached {
     height: 0px;
 }
 
-.hcached {
+.card.hcached {
     width: 0px;
 }
 
-.hlist {
+.card.hlist {
     display: flex;
     justify-content: space-around;
     flex-direction: row;
@@ -178,7 +178,7 @@ div.film-popup {
     justify-content: space-between;
 }
 .dropdown-elements{
-    transition: height 0.75s;
+    transition: "height" 0.75s;
 }
 .dropdown-elements.hide{
     height: 0px;
