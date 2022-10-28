@@ -40,11 +40,38 @@ textarea {
     resize: none;
 }
 
+.input-group {
+    display: flex;
+    align-items: stretch;
+}
+
 .input {
-    border: solid 3px lightgray;
+    transition: all 0.5s;
+    border: none;
     border-radius: 5px;
-    width: Calc(100% - 4rem);
-    padding: 0.6rem 2rem 0.6rem 2rem;
+    width: -webkit-fill-available;
+    padding: 0.75rem 2rem 0.75rem 2rem;
+    background-color: hsla(0deg, 0%, 100%, 0.2);
+    outline: none;
+}
+
+.input:hover {
+    background-color: hsla(0deg, 0%, 100%, 0.4);
+}
+
+.input:focus {
+    background-color: hsla(0deg, 0%, 100%, 0.6);
+}
+
+
+
+.label {
+    width: 25%;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    background-color: hsla(0deg, 0%, 0%, 0.2);
 }
 
 /*
@@ -80,6 +107,7 @@ textarea {
     font-family: Bubble;
     src: url('resources/installations/gummy_bears/Gummy\ Bears.ttf');
 }
+
 @font-face {
     font-family: Signature;
     src: url("resources/installations/thesignature/Thesignature.ttf");
@@ -117,18 +145,18 @@ textarea {
  *
  */
 
-.attention{
+.attention {
     color: hsl(0, 100%, 50%);
 }
 
-.warning{
+.warning {
     color: hsl(39, 100%, 50%);
 }
 
-.good{
+.good {
     color: hsl(120, 100%, 50%);
 }
 
-.info{
+.info {
     color: hsl(210, 100%, 50%);
 }

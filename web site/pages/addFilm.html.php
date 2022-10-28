@@ -44,33 +44,33 @@
                 </ul>
             </div>
             <form action="../PHP/addFilm.php" method="post">
-                <div>
-                    <label class="input input-left-out-target" for="1">titolo</label>
-                    <input class="input" oninput="linkers(this.value)" type="text" name="title" id="1" placeholder="" required maxlength="250" autocomplete="off">
+                <div class="input-group">
+                    <label class="input left-attachment label" for="1">titolo</label>
+                    <input class="input right-attachment" oninput="linkers(this.value)" type="text" name="title" id="1" placeholder="" required maxlength="250" autocomplete="off">
                 </div>
-                <div>
-                    <label class="input input-left-out-target" for="2">titolo originale</label>
-                    <input class="input" type="text" name="original-title" id="2" placeholder="" required maxlength="250" autocomplete="off">
+                <div class="input-group">
+                    <label class="input left-attachment label" for="2">titolo originale</label>
+                    <input class="input right-attachment" type="text" name="original-title" id="2" placeholder="" required maxlength="250" autocomplete="off">
                 </div>
-                <div>
-                    <label class="input input-left-out-target" for="3">locandina</label>
-                    <input class="input" type="url" name="poster" id="3" placeholder="" required maxlength="2083" autocomplete="off">
+                <div class="input-group">
+                    <label class="input left-attachment label" for="3">locandina</label>
+                    <input class="input right-attachment" type="url" name="poster" id="3" placeholder="" required maxlength="2083" autocomplete="off">
                 </div>
-                <div>
-                    <label class="input input-left-out-target" for="4">intro</label>
-                    <textarea class="input" name="intro" id="4" cols="30" rows="10" placeholder="" required maxlength="2147483647"></textarea>
+                <div class="input-group">
+                    <label class="input left-attachment label" for="4">intro</label>
+                    <textarea class="input right-attachment" name="intro" id="4" cols="30" rows="5" placeholder="" required maxlength="2147483647"></textarea>
                 </div>
-                <div>
-                    <label class="input input-left-out-target" for="5">trama</label>
-                    <textarea class="input" name="storyline" id="5" cols="30" rows="10" placeholder="" required maxlength="2147483647"></textarea>
+                <div class="input-group">
+                    <label class="input left-attachment label" for="5">trama</label>
+                    <textarea class="input right-attachment" name="storyline" id="5" cols="30" rows="5" placeholder="" required maxlength="2147483647"></textarea>
                 </div>
-                <div>
-                    <label class="input input-left-out-target" for="6">durata (minuti)</label>
-                    <input class="input" type="number" name="minutes" id="6" placeholder="" required min="1" max="300">
+                <div class="input-group">
+                    <label class="input left-attachment label" for="6">durata (minuti)</label>
+                    <input class="input right-attachment" type="number" name="minutes" id="6" placeholder="" required min="1" max="300">
                 </div>
-                <div>
-                    <label class="input input-left-out-target" for="7">lingua originale</label>
-                    <select class="input" name="original-language" id="7">
+                <div class="input-group">
+                    <label class="input left-attachment label" for="7">lingua originale</label>
+                    <select class="input right-attachment" name="original-language" id="7">
                         <option value="inglese" selected>Inglese</option>
                         <option value="italiano">Italiano</option>
                         <option value="spagnolo">Spagnolo</option>
@@ -80,9 +80,9 @@
                         <option value="cantonese">Cantonese</option>
                     </select>
                 </div>
-                <div>
-                    <label class="input input-left-out-target" for="8">anno di uscita</label>
-                    <input class="input" type="number" name="release-year" id="8" placeholder="" required min="1900">
+                <div class="input-group">
+                    <label class="input left-attachment label" for="8">anno di uscita</label>
+                    <input class="input right-attachment" type="number" name="release-year" id="8" placeholder="" required min="1900">
                     <script>
                         document.getElementById('8').setAttribute('max', (new Date()).getFullYear())
                     </script>
@@ -93,12 +93,14 @@
 
                         function newLink() {
                             let in_links_element = document.createElement("div");
+                            in_links_element.className = "input-group";
                             let in_links_label = document.createElement("label");
-                            in_links_label.className = "input input-left-out-target";
+                            in_links_label.style.borderTopLeftRadius = "0";
+                            in_links_label.className = "input left-attachment label";
                             in_links_label.setAttribute("for", "inlink" + id);
                             in_links_label.appendChild(document.createTextNode((id + 1) + "° link per lo streaming"));
                             let in_links_input = document.createElement("input");
-                            in_links_input.className = "input";
+                            in_links_input.className = "input right-attachment";
                             in_links_input.setAttribute("type", "url");
                             in_links_input.setAttribute("name", "streaming" + id);
                             in_links_input.setAttribute("autocomplete", "off");
@@ -106,7 +108,9 @@
                             let in_links_button = document.createElement("input");
                             in_links_button.type = "button";
                             in_links_button.value = "Annulla";
-                            in_links_button.className = "input";
+                            in_links_button.style.marginLeft = "1%";
+                            in_links_button.style.width = "unset";
+                            in_links_button.className = "input label attention";
                             in_links_button.setAttribute("onclick", "this.parentNode.style = \"height: 0px; overflow: hidden; padding: 0px;\"; document.getElementById('inlink" + id++ + "').value = \"\";");
                             in_links_element.appendChild(in_links_label);
                             in_links_element.appendChild(in_links_input);

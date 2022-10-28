@@ -12,6 +12,11 @@
 */
 * {
     font-family: Bubble;
+    text-overflow: ellipsis;
+}
+
+body {
+    background-image: linear-gradient(to right bottom, lightblue, lightgreen);
 }
 
 div.navigationbar {
@@ -65,7 +70,7 @@ div.card {
 }
 
 .button:hover {
-    box-shadow: 0px 0px 25px black;
+    box-shadow: 0px 0px 10px 5px black;
     transition: all 0.5s;
 }
 
@@ -131,7 +136,7 @@ div.film-popup {
     width: 0px;
 }
 
-.card.hlist {
+.hlist {
     display: flex;
     justify-content: space-around;
     flex-direction: row;
@@ -142,11 +147,21 @@ div.film-popup {
     position: absolute;
 }
 
+.right-attachment {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.left-attachment {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
 .button.push {
     border-radius: 50%;
     width: 2.5em;
     height: 2.5em;
-    right: 0px;
+    right: -1em;
 }
 
 .scrollable {
@@ -165,7 +180,7 @@ div.film-popup {
  *
 */
 
-.dropdown{
+.dropdown {
     border-radius: 1rem;
     border: solid 1px black;
     box-shadow: 0px 0px 5px black;
@@ -177,10 +192,12 @@ div.film-popup {
     align-items: center;
     justify-content: space-between;
 }
-.dropdown-elements{
+
+.dropdown-elements {
     transition: "height" 0.75s;
 }
-.dropdown-elements.hide{
+
+.dropdown-elements.hide {
     height: 0px;
     display: none;
 }
