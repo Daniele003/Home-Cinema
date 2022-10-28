@@ -304,40 +304,63 @@ function FilmDetails(_film_) {
     p_p_i_bottone_element_1.appendChild(p_p_i_b_icona_element_1);
     p_p_i_t_titolo_element_1.appendChild(document.createTextNode(_film_.ti));
     p_p_i_t_titoloOriginale_element_2.appendChild(document.createTextNode(_film_.to));
-    p_p_i_introduzione_element_4.appendChild(contentCollapse(document.createTextNode("Descrizione"), document.createTextNode(_film_.i), _film_.ID, false));
-    p_p_i_trama_element_5.appendChild(contentCollapse(document.createTextNode("Trama"), document.createTextNode(_film_.tr), _film_.ID, false));
-    p_p_i_durata_element_6.appendChild(document.createTextNode(_film_.d));
-    p_p_i_uscita_element_7.appendChild(document.createTextNode(_film_.a));
+    p_p_i_introduzione_element_4.appendChild(contentCollapse("Descrizione", document.createTextNode(_film_.i), _film_.ID, false));
+    p_p_i_trama_element_5.appendChild(contentCollapse("Trama", document.createTextNode(_film_.tr), _film_.ID, false));
+    p_p_i_durata_element_6.appendChild(contentCollapse("Durata:", document.createTextNode(_film_.d + " min"), _film_.ID, true));
+    p_p_i_uscita_element_7.appendChild(contentCollapse("Anno:", document.createTextNode(_film_.a), _film_.ID, true));
     return p_popup_element_2;
 }
 
-function contentCollapse(etichetta, contenuto, index, disable_collapse) {
+function contentCollapse(testo_etichetta, contenuto, index, disable_collapse) {
     //definizione elementi
     let main = document.createElement("div");
     let label = document.createElement("div");
     let label_content = document.createElement("h2");
     let show = document.createElement("div");
-    let show_icon = document.createElement("img");
-    let content_indentation = document.createElement("div");
-    let container = document.createElement("div");
+    let show_icon;
+    let content_indentation;
+    let container;
+    if (disable_collapse) {
+        show_icon = contenuto;
+    } else {
+        show_icon = document.createElement("img");
+        content_indentation = document.createElement("div");
+        container = document.createElement("div");
+    }
     //impostazione elementi
     main.className = "dropdown";
     label.className = "dropdown-label";
-    container.className = "dropdown-elements hide";
-    container.id = 'dropdown - container - ' + index;
-    show.className = "button push show";
-    show_icon.alt = "mostra";
-    show_icon.src = "../resources/images/icons/dropdown.png";
+    if (!disable_collapse) {
+        container.className = "dropdown-elements hide";
+        container.id = 'dropdown - container - ' + index + " - " + testo_etichetta;
+        show.className = "button push show";
+        show_icon.alt = "mostra";
+        show_icon.src = "../resources/images/icons/dropdown.png";
+        show.setAttribute("onclick", "showCollapsed('" + container.id + "')");
+    } else {
+        show.style.marginRight = "1%";
+    }
     //concatenazione gerarchia elementi
     show.appendChild(show_icon);
-    label_content.appendChild(etichetta);
+    label_content.appendChild(document.createTextNode(testo_etichetta));
     label.appendChild(label_content);
     label.appendChild(show);
-    content_indentation.appendChild(contenuto);
-    container.appendChild(content_indentation);
     main.appendChild(label);
-    main.appendChild(container);
+    if (!disable_collapse) {
+        main.appendChild(container);
+        container.appendChild(content_indentation);
+        content_indentation.appendChild(contenuto);
+    }
     return main;
+}
+
+function showCollapsed(target_id) {
+    let t = document.getElementById(target_id);
+    if (t.className.includes('hide')) {
+        t.className = t.className.replace('hide', 'dont-h_i_d_e');
+    } else {
+        t.className = t.className.replace('dont-h_i_d_e', 'hide');
+    }
 }
 
 function notState(target_id) {

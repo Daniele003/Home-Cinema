@@ -105,6 +105,7 @@ div.film-list {
 
 .popup>.container>.close {
     width: 2em;
+    height: 2em;
     margin-right: 0px;
     margin-left: auto;
     top: 0;
