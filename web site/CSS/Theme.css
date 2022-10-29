@@ -125,18 +125,6 @@ div.film-popup {
     z-index: 1;
 }
 
-.hide {
-    display: none;
-}
-
-.card.cached {
-    height: 0px;
-}
-
-.card.hcached {
-    width: 0px;
-}
-
 .hlist {
     display: flex;
     justify-content: space-around;
@@ -163,6 +151,9 @@ div.film-popup {
     width: 2.5em;
     height: 2.5em;
     right: -1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .scrollable {
@@ -201,4 +192,139 @@ div.film-popup {
 .dropdown-elements.hide {
     height: 0px;
     display: none;
+}
+
+/*
+ *
+ * CSSper dado 3d
+ *
+ */
+
+.dice- {
+    overflow: visible;
+}
+
+
+.dice-.container {
+    width: 25em;
+    height: 25em;
+    perspective: 1000px;
+}
+
+.dice-.cube {
+    transform-style: preserve-3d;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.dice-.face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(hsl(50, 100%, 95%), hsl(50, 100%, 80%));
+    border: groove 4px black;
+    border-radius: 3em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+
+.dice-.top {
+    transform: rotateX(90deg) translateZ(12.5em);
+}
+
+.dice-.bottom {
+    transform: rotateX(-90deg) translateZ(12.5em);
+}
+
+.dice-.right {
+    transform: rotateY(90deg) translateZ(12.5em);
+}
+
+.dice-.left {
+    transform: rotateY(-90deg) translateZ(12.5em);
+}
+
+.dice-.front {
+    transform: rotateX(0deg) translateZ(12.5em);
+}
+
+.dice-.back {
+    transform: rotateX(-180deg) translateZ(12.5em);
+}
+
+@keyframes spin {
+    from {
+        transform: rotateY(360deg) rotateX(360deg);
+    }
+
+    to {
+        transform: rotateY(0deg) rotateX(0deg);
+    }
+}
+
+/* THIS IS STILL GOOD  *
+
+@keyframes spin {
+    from {
+        transform: rotateY(360deg) rotateX(360deg) rotateZ(360deg);
+    }
+
+    to {
+        transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg);
+    }
+}
+
+/**/
+
+.dice-.cube {
+    transform-style: preserve-3d;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    animation: spin 1.5s infinite linear;
+}
+
+.dice-.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    height: auto;
+    width: auto;
+    margin: 3%;
+}
+
+.dice-.circle {
+    padding: 10%;
+    border-radius: 50%;
+    background: radial-gradient(darkred, black);
+}
+
+
+/*
+ *
+ * PRIORITY STYLES
+ *
+ */
+
+.hide {
+    display: none;
+}
+
+.card.cached {
+    height: 0px;
+}
+
+.card.hcached {
+    width: 0px;
+}
+
+.dice-.invisible {
+    background: none;
+    border: none;
+    box-shadow: none;
 }

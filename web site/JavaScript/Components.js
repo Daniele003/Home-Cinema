@@ -220,10 +220,9 @@ function navbar(logo, search, random) {
         dice.style = " background-color: hsl(240, 50%, 25%);";
         let image = document.createElement("img");
         image.src = "../resources/images/icons/dice.png";
-        dice.appendChild(image);
-        //rimuovere f e mettere direttamente il valore
-        let f = "if (random_history.length > 0) {close_it(random_history[random_history.length - 1].ID, /*100*/0);}let nuovo = found_results[(Math.floor(Math.random() * found_results.length))];while (nuovo == random_history[random_history.length - 1]) {nuovo = found_results[(Math.floor(Math.random() * found_results.length))];}random_history.push(nuovo); notState(random_history[random_history.length - 1].ID);";
-        dice.setAttribute("onclick", f);
+        //dice.appendChild(image);
+        dice.appendChild(dice3D(1.5 + "em"));
+        dice.setAttribute("onclick", "if (random_history.length > 0) {close_it(random_history[random_history.length - 1].ID, /*100*/0);}let nuovo = found_results[(Math.floor(Math.random() * found_results.length))];while (nuovo == random_history[random_history.length - 1]) {nuovo = found_results[(Math.floor(Math.random() * found_results.length))];}random_history.push(nuovo); notState(random_history[random_history.length - 1].ID);");
         nb.appendChild(dice);
     }
     return nb;
@@ -309,6 +308,155 @@ function FilmDetails(_film_) {
     p_p_i_durata_element_6.appendChild(contentCollapse("Durata:", document.createTextNode(_film_.d + " min"), _film_.ID, true));
     p_p_i_uscita_element_7.appendChild(contentCollapse("Anno:", document.createTextNode(_film_.a), _film_.ID, true));
     return p_popup_element_2;
+}
+
+function dice3D(dimensione) {
+    /**
+     * HTLM TRANSLATION (NOT UPDATED)
+     * **********************************************************************************************************************************
+     * <div class="dice- container invisible">
+     *  <div class="dice- cube invisible">
+     *   <div class="dice- face front">
+     *    <div class="dice- row">
+     *     <div class="dice- circle"></div>
+     *    </div>
+     *   </div>
+     *   <div class="dice- face back">
+     *    <div class="dice- row">
+     *     <div class="dice- circle"></div>
+     *     <div class="dice- circle"></div>
+     *     <div class="dice- circle"></div>
+     *    </div>
+     *    <div class="dice- row">
+     *     <div class="dice- circle"></div>
+     *     <div class="dice- circle"></div>
+     *     <div class="dice- circle"></div>
+     *    </div>
+     *   </div>
+     *   <div class="dice- face right">
+     *    <div class="dice- row">
+     *     <div class="dice- circle"></div>
+     *    </div>
+     *    <div class="dice- row">
+     *    </div>
+     *    <div class="dice- row">
+     *     <div class="dice- circle"></div>
+     *    </div>
+     *   </div>
+     *   <div class="dice- face left">
+     *    <div class="dice- row">
+     *     <div class="dice- circle"></div>
+     *     <div class="dice- circle"></div>
+     *    </div>
+     *    <div class="dice- row">
+     *     <div class="dice- circle"></div>
+     *    </div>
+     *    <div class="dice- row">
+     *     <div class="dice- circle"></div>
+     *     <div class="dice- circle"></div>
+     *    </div>
+     *   </div>
+     *   <div class="dice- face top">
+     *    <div class="dice- row">
+     *     <div class="dice- circle"></div>
+     *     <div class="dice- circle"></div>
+     *    </div>
+     *    <div class="dice- row">
+     *     <div class="dice- circle"></div>
+     *     <div class="dice- circle"></div>
+     *    </div>
+     *   </div>
+     *   <div class="dice- face bottom">
+     *    <div class="dice- row">
+     *     <div class="dice- circle"></div>
+     *    </div>
+     *    <div class="dice- row">
+     *     <div class="dice- circle"></div>
+     *    </div>
+     *    <div class="dice- row">
+     *     <div class="dice- circle"></div>
+     *    </div>
+     *   </div>
+     *  </div>
+     * </div>
+     */
+
+     let facesDictionary = ["front", "right", "top", "bottom", "left", "back"];
+     //impostazione dado
+     let contenitore = document.createElement("div");
+     let c_cubo = document.createElement("div");
+     let c_c_face;
+     //funzione generatrice della faccia
+     let createFace = (matrix) => {
+         let face = document.createElement("div");
+         face.className = "dice- face";
+         for (let i = 0, createRow = true; i < matrix.length; i++) {
+             createRow = createRow && matrix[i].length > 0;
+             let row = document.createElement("div");
+             row.className = "dice- row";
+             for (let j = 0; j < matrix[i].length; j++) {
+                 let point = document.createElement("div");
+                 point.className = "dice- circle";
+                 if (matrix[i][j] == 0) {
+                     point.className += " invisible";
+                 }
+                 row.appendChild(point);
+             }
+             if (createRow) {
+                 face.appendChild(row);
+             }
+         }
+         console.log(face);
+         return face;
+     };
+     //impostazione base dado
+     contenitore.className = "dice- container invisible";
+     c_cubo.className = "dice- cube invisible";
+     contenitore.appendChild(c_cubo);
+     //creazione faccie
+     // FACCIA 1 (front)
+     c_c_face = createFace([[0, 1, 0]]);       //creo la faccia del dado
+     c_c_face.className += " " + facesDictionary[0];
+     c_cubo.appendChild(c_c_face);                                   //aggiungo la faccia al cubo
+     // FACCIA 2 (right)
+     c_c_face = createFace([[0, 0, 1], [1, 0, 0]]);       //creo la faccia del dado
+     c_c_face.className += " " + facesDictionary[1];
+     c_cubo.appendChild(c_c_face);                                   //aggiungo la faccia al cubo
+     // FACCIA 3 (top)
+     c_c_face = createFace([[1, 0, 0], [0, 1, 0], [0, 0, 1]]);       //creo la faccia del dado
+     c_c_face.className += " " + facesDictionary[2];
+     c_cubo.appendChild(c_c_face);                                   //aggiungo la faccia al cubo
+     // FACCIA 4 (bottom)
+     c_c_face = createFace([[1, 0, 1], [1, 0, 1]]);       //creo la faccia del dado
+     c_c_face.className += " " + facesDictionary[3];
+     c_cubo.appendChild(c_c_face);                                   //aggiungo la faccia al cubo
+     // FACCIA 5 (left)
+     c_c_face = createFace([[1, 0, 1], [0, 1, 0], [1, 0, 1]]);       //creo la faccia del dado
+     c_c_face.className += " " + facesDictionary[4];
+     c_cubo.appendChild(c_c_face);                                   //aggiungo la faccia al cubo
+     // FACCIA 6 (back)
+     c_c_face = createFace([[1, 0, 1], [1, 0, 1], [1, 0, 1]]);       //creo la faccia del dado
+     c_c_face.className += " " + facesDictionary[5];
+     c_cubo.appendChild(c_c_face);                                   //aggiungo la faccia al cubo
+
+     //ridimensionamento dado in base ai parametri
+     contenitore.style = "width: " + dimensione + "; height: " + dimensione + ";";
+     // ciclo per la reimpostazione del arrotondamento del bordo delle facce
+     for (let i = 0, array = contenitore.getElementsByClassName('face'); i < array.length; i++) {
+         array[i].style.borderRadius = ((parseFloat(dimensione) * (3 / 25))) + "em";
+         array[i].style.border = "groove " + ((parseFloat(dimensione) * (4 / 25))) + "px black";
+     }
+     //cambiare la dimensione nelle rotazioni delle singole facce
+     //possibile soluzione: passare alla funzione il nome della faccia e delegarlo
+     let manualIterator = 0;
+     c_cubo.getElementsByClassName(facesDictionary[manualIterator++])[0].style.transform = "rotateX(0deg) translateZ(" + (parseFloat(dimensione) / 2) + "em)";
+     c_cubo.getElementsByClassName(facesDictionary[manualIterator++])[0].style.transform = "rotateY(90deg) translateZ(" + (parseFloat(dimensione) / 2) + "em)";
+     c_cubo.getElementsByClassName(facesDictionary[manualIterator++])[0].style.transform = "rotateX(90deg) translateZ(" + (parseFloat(dimensione) / 2) + "em)";
+     c_cubo.getElementsByClassName(facesDictionary[manualIterator++])[0].style.transform = "rotateX(-90deg) translateZ(" + (parseFloat(dimensione) / 2) + "em)";
+     c_cubo.getElementsByClassName(facesDictionary[manualIterator++])[0].style.transform = "rotateY(-90deg) translateZ(" + (parseFloat(dimensione) / 2) + "em)";
+     c_cubo.getElementsByClassName(facesDictionary[manualIterator++])[0].style.transform = "rotateX(-180deg) translateZ(" + (parseFloat(dimensione) / 2) + "em)";
+     console.log(contenitore);
+     return contenitore;
 }
 
 function contentCollapse(testo_etichetta, contenuto, index, disable_collapse) {
