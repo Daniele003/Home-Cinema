@@ -193,8 +193,8 @@ function navbar(logo, search, random) {
     }
     if (search) {
         let search = document.createElement("div");
-        search.className = "logo scrollable";
-        search.style = "width: 50%; position: relative;";
+        search.className = "logo";
+        search.style = "width: 50%; position: relative; overflow: visible;";
         let inbar = document.createElement("input");
         inbar.className = "input";
         inbar.id = "research";
@@ -510,10 +510,14 @@ function showCollapsed(target_id) {
 
 function notState(target_id) {
     target = document.getElementById(target_id);
-    if (target.className.includes(" hide "))
+    if (target.className.includes(" hide ")) {
         target.className = target.className.replace(" hide ", "");
-    else
+        document.body.style.overflow = "hidden";
+    }
+    else {
         target.className = target.className + " hide ";
+        document.body.style.overflow = "auto";
+    }
 }
 
 function close_it(target_id, tempo_di_sfumo) {
