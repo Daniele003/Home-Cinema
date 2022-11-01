@@ -248,7 +248,6 @@ function cardGroup(movies, parent, wantPopups) {
 }
 
 function FilmCard(_film, details) {
-    //_film.setID((_film.to + " (film " + _film.a + ")").replace("\'", ""));
     //definizione elementi
     let parent_element_0 = document.createElement("div");
     let p_card_element_1 = document.createElement("div");
@@ -262,7 +261,8 @@ function FilmCard(_film, details) {
     parent_element_0.className = "not-hidden";
     p_card_element_1.id = "card - " + _film.ID;
     p_card_element_1.className = "card button cached";
-    p_card_element_1.setAttribute("onclick", "notState('" + _film.ID + "');");
+    if (details)
+        p_card_element_1.setAttribute("onclick", "notState('" + _film.ID + "');");
     p_c_anteprima_element_1.className = "anteprima";
     p_c_anteprima_element_1.style = "background-image: url('" + _film.l + "'); width: auto; height: 18em;";
     p_c_details_element_2.style = "padding: 1em; height: calc(100% - 20em); display: flex; flex-direction: column; justify-content: space-around;";
