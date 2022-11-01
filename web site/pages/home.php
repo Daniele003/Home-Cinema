@@ -20,7 +20,7 @@
     <div>
         <!-- pulsanti per riordinare lista film dopo la ricerca e etichette per selezionare i generi secondo cui filtrare -->
     </div>
-    <div class="film-list" style="transition: all 1s;">
+    <div class="card-group film-list" style="transition: all 1s;">
         <div>
             <div class="card button cached" style="border: dashed 3px grey; background-color: lightgrey; background-image: url('../resources/images/icons/add.png'); background-size: contain; cursor: copy;" onclick="location.assign('addFilm.html.php');"></div>
         </div>
@@ -47,22 +47,8 @@ console.log(push_in);";
             }
             ?>
             films = distinct_keys(new Array("to", "a"), new Array("g", "s"), films, films.length);
-            for (let i = 0; i < films.length; i++) {
-                document.getElementsByClassName('film-list')[0].appendChild(FilmCard(films[i]));
-            }
-            setTimeout(() => {
-                let lista = document.getElementsByClassName('film-list')[0].getElementsByClassName('cached');
-                let cicle = setInterval(() => {
-                    if (0 < lista.length) {
-                        lista[0].className = lista[0].className.replace('cached', 'not-c.a.c.h.e.d');
-                        //i += 1;//non necessario poichè javascript utilizza liste dinamiche e quindi ogni volta viene aggiornata automaticamente
                         //inoltre grazie a questa proprietà se stamapti i valori ad esempio un oggetto in console non saranno statici, ma verranno aggiornati assieme all'oggeto senza alcun bisogno di ristamparlo
-                    } else {
-                        clearInterval(cicle);
-                    }
-                    //alert("lunghezza lista: " + lista.length);
-                }, 25);
-            }, 250);
+            cardGroup(films, document.getElementsByClassName('card-group film-list')[0], true);
             search_title();
         </script>
     </div>

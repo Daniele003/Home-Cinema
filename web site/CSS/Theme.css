@@ -75,7 +75,7 @@ div.card {
 }
 
 
-div.film-list {
+div.card-group {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;

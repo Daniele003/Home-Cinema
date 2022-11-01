@@ -9,7 +9,7 @@ class Film {
         this.a = anno;
         this.g = generi;
         this.s = streaming;
-        this.ID = null;
+        this.ID = (this.to + " (film " + this.a + ")").replace("\'", "");
     }
     setGeneri(generi) {
         this.g = generi;
@@ -225,8 +225,30 @@ function navbar(logo, search, random) {
     return nb;
 }
 
-function FilmCard(_film) {
-    _film.setID((_film.to + " (film " + _film.a + ")").replace("\'", ""));
+function cardGroup(movies, parent, wantPopups) {
+    for (let i = 0; i < movies.length && wantPopups; i++) {
+        parent.appendChild(FilmCard(movies[i], FilmDetails(movies[i])));
+    }
+    for (let i = 0; i < movies.length && !wantPopups; i++) {
+        parent.appendChild(FilmCard(movies[i], false));
+    }
+    setTimeout(() => {
+        let lista = parent.getElementsByClassName('cached');
+        let cicle = setInterval(() => {
+            if (0 < lista.length) {
+                lista[0].className = lista[0].className.replace('cached', 'not-c.a.c.h.e.d');
+                //i += 1;//non necessario poichè javascript utilizza liste dinamiche e quindi ogni volta viene aggiornata automaticamente
+                //inoltre grazie a questa proprietà se stamapti i valori ad esempio un oggetto in console non saranno statici, ma verranno aggiornati assieme all'oggeto senza alcun bisogno di ristamparlo
+            } else {
+                clearInterval(cicle);
+            }
+            //alert("lunghezza lista: " + lista.length);
+        }, 25);
+    }, 250);
+}
+
+function FilmCard(_film, details) {
+    //_film.setID((_film.to + " (film " + _film.a + ")").replace("\'", ""));
     //definizione elementi
     let parent_element_0 = document.createElement("div");
     let p_card_element_1 = document.createElement("div");
@@ -247,7 +269,9 @@ function FilmCard(_film) {
     //concatenazione gerarchia elementi
     document.body.appendChild(parent_element_0);
     parent_element_0.appendChild(p_card_element_1);
-    parent_element_0.appendChild(FilmDetails(_film));
+    //parent_element_0.appendChild(FilmDetails(_film));
+    if (details)
+        parent_element_0.appendChild(details);
     p_card_element_1.appendChild(p_c_anteprima_element_1);
     p_card_element_1.appendChild(p_c_details_element_2);
     p_c_details_element_2.appendChild(p_c_d_titolo_element_1);
@@ -570,7 +594,7 @@ function filter_title() {
 }
 
 function search_title() {
-    console.log("i'm in!!");
+    //console.log("i'm in!!");
     filter_title();
     console.log(found_results);
     for (let i = 0; i < films.length; i++) {
