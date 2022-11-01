@@ -47,7 +47,6 @@ console.log(push_in);";
             }
             ?>
             films = distinct_keys(new Array("to", "a"), new Array("g", "s"), films, films.length);
-                        //inoltre grazie a questa proprietà se stamapti i valori ad esempio un oggetto in console non saranno statici, ma verranno aggiornati assieme all'oggeto senza alcun bisogno di ristamparlo
             cardGroup(films, document.getElementsByClassName('card-group film-list')[0], true);
             search_title();
         </script>
