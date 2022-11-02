@@ -47,7 +47,7 @@ console.log(push_in);";
             }
             ?>
             films = distinct_keys(new Array("to", "a"), new Array("g", "s"), films, films.length);
-            cardGroup(films, document.getElementsByClassName('card-group film-list')[0], true);
+            cardGroup(films, document.getElementsByClassName('card-group film-list')[0], true, "notState");
             search_title();
         </script>
     </div>

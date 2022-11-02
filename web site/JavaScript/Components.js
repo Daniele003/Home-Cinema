@@ -225,12 +225,12 @@ function navbar(logo, search, random) {
     return nb;
 }
 
-function cardGroup(movies, parent, wantPopups) {
-    for (let i = 0; i < movies.length && wantPopups; i++) {
-        parent.appendChild(FilmCard(movies[i], FilmDetails(movies[i])));
+function cardGroup(movies, parent, popup_action, card_action) {
+    for (let i = 0; i < movies.length && popup_action; i++) {
+        parent.appendChild(FilmCard(movies[i], FilmDetails(movies[i]), card_action + "('" + movies[i].ID + "');"));
     }
-    for (let i = 0; i < movies.length && !wantPopups; i++) {
-        parent.appendChild(FilmCard(movies[i], false));
+    for (let i = 0; i < movies.length && !popup_action; i++) {
+        parent.appendChild(FilmCard(movies[i], false, card_action));
     }
     setTimeout(() => {
         let lista = parent.getElementsByClassName('cached');
@@ -247,7 +247,7 @@ function cardGroup(movies, parent, wantPopups) {
     }, 250);
 }
 
-function FilmCard(_film, details) {
+function FilmCard(_film, details, action) {
     //definizione elementi
     let parent_element_0 = document.createElement("div");
     let p_card_element_1 = document.createElement("div");
@@ -262,7 +262,7 @@ function FilmCard(_film, details) {
     p_card_element_1.id = "card - " + _film.ID;
     p_card_element_1.className = "card button cached";
     if (details)
-        p_card_element_1.setAttribute("onclick", "notState('" + _film.ID + "');");
+        p_card_element_1.setAttribute("onclick", action);
     p_c_anteprima_element_1.className = "anteprima";
     p_c_anteprima_element_1.style = "background-image: url('" + _film.l + "'); width: auto; height: 18em;";
     p_c_details_element_2.style = "padding: 1em; height: calc(100% - 20em); display: flex; flex-direction: column; justify-content: space-around;";
