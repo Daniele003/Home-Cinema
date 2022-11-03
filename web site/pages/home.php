@@ -41,12 +41,14 @@
 //constructor(                                  titolo,                                       titolo_originale,                                       locandina,                                       intro,                                       trama,                           durata,                         anno,                         generi,                   streaming  )
 push_in = new Film(\"" . clearText($row_target["titolo"]) . "\", \"" . clearText($row_target["titolo_originale"]) . "\", \"" . clearText($row_target["locandina"]) . "\", \"" . clearText($row_target["intro"]) . "\", \"" . clearText($row_target["trama"]) . "\", " . $row_target["durata"] . ", " . $row_target["uscita"] . ", \"" . $row_target["genre_name"] . "\", \"" . $row_target["link"] . "\");
 films.push(push_in);
-console.log(\"added Film: \");
-console.log(push_in);";
+//console.log(\"added Film: \");
+//console.log(push_in);
+//questa riga commentata (a capo compreso) è fondamentale per separare il messaggio di console commentato dalla riga successiva di codice che NON deve essere commentata
+";
                 }
             }
             ?>
-            films = distinct_keys(new Array("to", "a"), new Array("g", "s"), films, films.length);
+            films = distinct_keys(["to", "a"], ["g", "s"], films, films.length);
             cardGroup(films, document.getElementsByClassName('card-group film-list')[0], true, "notState");
             search_title();
         </script>
