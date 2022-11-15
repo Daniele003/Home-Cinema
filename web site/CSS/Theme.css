@@ -304,6 +304,20 @@ div.film-popup {
     background: radial-gradient(darkred, black);
 }
 
+/*
+ *
+ * STYLED GENRE LABELS
+ *
+ */
+
+ .genre-label{
+    background-color: white;
+ }
+
+ .genre-label > input {
+    display: none;
+ }
+
 
 /*
  *

@@ -133,8 +133,11 @@
                         $result = dbQuery(null, $query, false);
                         for ($i = 0; $riga = mysqli_fetch_array($result, MYSQLI_ASSOC); $i++) {
                         ?>
-                            <div>
-                                <input type="checkbox" id="c-<?php print $i; ?>" value="<?php print $riga["nome"]; ?>" onclick="setG(this.value)">
+                            <div class="genre-label">
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="c-<?php print $i; ?>" value="<?php print $riga["nome"]; ?>" onclick="setG(this.value)">
+                                    <div class="checkbox"></div>
+                                </div>
                                 <label for="c-<?php print $i; ?>"><?php print $riga["nome"]; ?></label>
                             </div>
                         <?php
