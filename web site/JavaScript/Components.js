@@ -204,6 +204,7 @@ function navbar(logo, search, random) {
         inbar.setAttribute("onsearch", "console.log(\"search value: \" + this.value);search_title();");
         search.appendChild(inbar);
         let enter = document.createElement("div");
+        enter.id = "research-lens-button";
         enter.className = "input-inside button push";
         enter.style = "width: 2em; height: 2em; background-color: white;";
         enter.setAttribute("onclick", "search_title();");
