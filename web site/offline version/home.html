@@ -22,6 +22,7 @@
                 if (filters[index].checked)
                     filters_array.push(filters[index].value);
             }
+            console.log(filters_array)
             let final = offline_research(document.getElementById('research').value, filters_array);
             document.getElementsByClassName('card-group film-list')[0].innerHTML = "";
             cardGroup(final, document.getElementsByClassName('card-group film-list')[0], true, "notState");
@@ -39,8 +40,8 @@
         <!-- pulsanti per riordinare lista film dopo la ricerca e etichette per selezionare i generi secondo cui filtrare -->
         <input class="filter-checkbox" type="checkbox" value="visto" id="filter-visto" onchange="updatefilmlist()">
         <label for="filter-visto">già visto ma nulla di chè</label>
-        <input class="filter-checkbox" type="checkbox" value="dowload" id="filter-download" onchange="updatefilmlist()">
-        <label for="filter-download">assolutamente da caricare</label>
+        <input class="filter-checkbox" type="checkbox" value="download" id="filter-download" onchange="updatefilmlist()">
+        <label for="filter-download">assolutamente da scaricare</label>
         <input class="filter-checkbox" type="checkbox" value="stupendo" id="filter-stupendo" onchange="updatefilmlist()">
         <label for="filter-stupendo">bellismo</label>
     </div>
