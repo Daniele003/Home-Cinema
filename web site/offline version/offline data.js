@@ -511,8 +511,7 @@ function stringMatching(string, search) {
         for (let index = 0; index < Math.min(s1.length, s2.length); index++) {
             if (s1[index] == s2[index]) {
                 count += 1;
-            }
-            else {
+            } else {
                 let distance = 0;
                 //andremo a cercare questa lettera, il contributo al count sarà
                 //proporzionale alla distanza a cui verrà trovata la prima occorrenza, se
@@ -531,16 +530,16 @@ function stringMatching(string, search) {
                     }
                 }
                 if (distance == 0) { //lettera non trovata
-                    count -= 1 / Math.min(s1.length, s2.length)
+                    count -= 1 / s2.length;
                 } else {
                     count += 1 / (distance * distance);
                 }
             }
         }
+
         //rapporto alla lunghezza
-        let result = count / search.length;
-        if (result > 0.5)
-            //TODO:console.log("'" + s1 + "' è compatibile con '" + s2 + "' per il " + 100 * result + "% [" + count + " caratteri pesati in comune]");
+        let result = count / Math.min(s1.length, s2.length);
+        //console.log("'" + s1 + "' è compatibile con '" + s2 + "' per il " + 100 * result + "% [" + count + " caratteri pesati in comune]");
         return result;
     }
     let search_low = search.toLowerCase();
@@ -551,11 +550,14 @@ function stringMatching(string, search) {
         if (search_low[index] == string_low[index])
             offset = index;
     }
-    offset /= string.length;
+    if (offset == -1)
+        return 0
+    let begin = offset;
+    offset = offset / string.length;
     let antioffset = 1 - offset;
     //aggiorno le stringhe in modo che ignorino lo slittamento appena stimato
-    search = search.substring(offset);
-    string = string.substring(offset);
+    search = search.substring(begin);
+    string = string.substring(begin);
     search_low = search.toLowerCase();
     string_low = string.toLowerCase();
     //valuto inclusione della ricerca
@@ -564,10 +566,37 @@ function stringMatching(string, search) {
     if (string_low.includes(search_low))
         return 100 * (0.99 - offset);
     //valuto la compatibilità delle due stringhe
-    let match = 0;
-    //combinazione di due "probabilità"
-    match += 100 * (character_frequency(string, search) * antioffset);
-    return match;
+    return 100 * (character_frequency(string, search) * antioffset);
+}
+
+function match_reorder(results) {
+    console.log("risultati caotici della ricerca: ", results);
+    //algoritmo da Copilot
+    function quickSort(arr) {
+        if (arr.length <= 1) {
+            return arr;
+        }
+        //
+        const pivot = arr[0];
+        const left = [];
+        const right = [];
+        //
+        for (let i = 1; i < arr.length; i++) {
+            if (arr[i].priority > pivot.priority) {
+                left.push(arr[i]);
+            } else {
+                right.push(arr[i]);
+            }
+        }
+        //
+        return [...quickSort(left), pivot, ...quickSort(right)];
+    }
+    results = quickSort(results);
+    for (let index = 0; index < results.length; index++) {
+        results[index] = results[index]['obj'];
+    }
+    console.log("risultati riordinati: ", results);
+    return results;
 }
 
 function offline_research(string, type_names) {
@@ -581,26 +610,28 @@ function offline_research(string, type_names) {
     else {
         search_targets = get_films(true);
     }
-    //console.log("search_targets: ");
-    //console.log(search_targets);
+    //console.log("search_targets: ",search_targets);
     if (!string) {
         found = search_targets;
-        //console.log("stringa di ricerca vuota, found: ");
-        //console.log(found);
+        //console.log("stringa di ricerca vuota, found: ",found);
     } else {
         inner_found = { 'titolo': [], 'title': [] }
         for (let index = 0; index < search_targets.length; index++) {
             let tmp = search_targets[index];
-            if (stringMatching(tmp.ti, string) > 75)
-                inner_found['titolo'].push(tmp);
-            else
-                if (stringMatching(tmp.to, string) > 75)
-                    inner_found['title'].push(tmp);
+            let m = stringMatching(tmp.ti, string);
+            if (m > 68)
+                inner_found['titolo'].push({ 'obj': tmp, 'priority': m });
+            else {
+                //pesiamo leggermente meno i risultati col titolo originale dato che è un pelo più improbabile cercarlo
+                m = 0.98 * stringMatching(tmp.to, string);
+                if (m > 68)
+                    inner_found['title'].push({ 'obj': tmp, 'priority': m });
+            }
         }
         found = inner_found['titolo'].concat(inner_found['title']);
+        found = match_reorder(found);
     }
-    //console.log("risultati ricerca \'" + string + "\' nelle categorie\'" + type_names + "\': ");
-    //console.log(found);
+    //console.log("risultati ricerca \'" + string + "\' nelle categorie\'" + type_names + "\': ,found);
     return found;
 }
 
