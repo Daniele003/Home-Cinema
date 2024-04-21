@@ -22,6 +22,7 @@
                 if (filters[index].checked)
                     filters_array.push(filters[index].value);
             }
+            console.log("filters_array:")
             console.log(filters_array)
             let final = offline_research(document.getElementById('research').value, filters_array);
             document.getElementsByClassName('card-group film-list')[0].innerHTML = "";
@@ -50,8 +51,8 @@
     <div class="card-group film-list" style="transition: all 1s;">
         <script type="text/javascript">
             let offline_films = get_films(true);
-            console.log("result: ");
-            console.log(offline_films);
+            //console.log("result: ");
+            //console.log(offline_films);
             if (offline_films.length == 0) {
                 document.write("<div>there are no films to display</div>");
             } else {

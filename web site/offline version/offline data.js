@@ -12,7 +12,7 @@ const categories = {
         61, 63, 64, 65, 67, 68, 69,
         70, 71, 72, 73, 75, 77, 78,
         80, 81, 82, 83, 85, 86, 87, 88, 89,
-        90, 91, 92, 93, 94, 95, 96, 97, 98, 99
+        90
     ],
     'visto': [1, 5, 13, 46, 55, 79],
     'download': [0, 10, 35, 37, 47, 76, 84],
@@ -533,20 +533,40 @@ function stringMatching(string, search) {
                 if (distance == 0) { //lettera non trovata
                     count -= 1 / Math.min(s1.length, s2.length)
                 } else {
-                    count += 1 / distance;
+                    count += 1 / (distance * distance);
                 }
             }
         }
-        console.log("'" + s1 + "' è compatibile con '" + s2 + "' per il " + count / search.length + "% [" + count + " caratteri pesati in comune]");
         //rapporto alla lunghezza
-        return count / search.length;
+        let result = count / search.length;
+        if (result > 0.5)
+            //TODO:console.log("'" + s1 + "' è compatibile con '" + s2 + "' per il " + 100 * result + "% [" + count + " caratteri pesati in comune]");
+        return result;
     }
+    let search_low = search.toLowerCase();
+    let string_low = string.toLowerCase();
+    //valutazione slittamento (tutto in minuscolo)
+    let offset = -1;
+    for (let index = 0; index < search.length && offset == -1; index++) {
+        if (search_low[index] == string_low[index])
+            offset = index;
+    }
+    offset /= string.length;
+    let antioffset = 1 - offset;
+    //aggiorno le stringhe in modo che ignorino lo slittamento appena stimato
+    search = search.substring(offset);
+    string = string.substring(offset);
+    search_low = search.toLowerCase();
+    string_low = string.toLowerCase();
+    //valuto inclusione della ricerca
     if (string.includes(search))
-        return 100;
-    if (string.toLowerCase().includes(search.toLowerCase()))
-        return 99;
+        return 100 * antioffset;
+    if (string_low.includes(search_low))
+        return 100 * (0.99 - offset);
+    //valuto la compatibilità delle due stringhe
     let match = 0;
-    match += 100 * character_frequency(string, search);
+    //combinazione di due "probabilità"
+    match += 100 * (character_frequency(string, search) * antioffset);
     return match;
 }
 
