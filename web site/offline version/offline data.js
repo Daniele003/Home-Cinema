@@ -2,16 +2,28 @@
 //risparmiamo memoria a discapito del rallentamento causto dal dover creare il vettore statico ogni volta che chiamiamo la funzione
 //per quanto riguarda i film già scaricati toglierli dall'elenco dei dowload e inserirli nell'elenco di preferenza, mettendo nei link di streaming i percorso assoluto di dove è stato salvato.
 const categories = {
+    'guardare': [
+        3, 4, 6, 7, 8, 9,
+        12, 14, 15, 16, 17, 18,
+        20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+        30, 31, 32, 33, 34, 39,
+        40, 41, 42, 43, 44, 45, 48, 49,
+        50, 51, 52, 53, 54, 56, 57, 58, 59,
+        61, 63, 64, 65, 67, 68, 69,
+        70, 71, 72, 73, 75, 77, 78,
+        80, 81, 82, 83, 85, 86, 87, 88, 89,
+        90, 91, 92, 93, 94, 95, 96, 97, 98, 99
+    ],
     'visto': [1, 5, 13, 46, 55, 79],
     'download': [0, 10, 35, 37, 47, 76, 84],
     'stupendo': [2, 11, 19, 36, 38, 60, 62, 66, 74]
-}
+};
 
 function get_films(pos) {
     let list = [
         new Film("10 cose che odio di te!",
             "10 things i hate about you!",
-            "https://movieplayer.net-cdn.it/t/images/2003/03/19/la-locandina-di-10-cose-che-odio-di-te-7840_jpg_420x0_crop_q85.jpg",
+            "https://image.tmdb.org/t/p/original/jz1aH9vR1cHYsWPeAY3E7UMkxkH.jpg",
             "10 cose che odio di te (10 Things I Hate About You) è un film del 1999 diretto da Gil Junger, alla sua prima regia. Il titolo"
             + " della pellicola è ripreso da una poesia recitata nell'opera La bisbetica domata di William Shakespeare, di cui il film è una"
             + " versione cinematografica in chiave giovanile.",
@@ -192,11 +204,11 @@ function get_films(pos) {
             "https://image.tmdb.org/t/p/original/tK30ssQuyfhrBXMgMTW5oO3htbi.jpg",
             "",
             "", 129, 2016, "", ""),
-        new Film("",
+        new Film("Batman Begins",
+            "Batman Begins",
+            "https://image.tmdb.org/t/p/original/ijKpiStjMetB43uxOAXpE8RAQR7.jpg",
             "",
-            "",
-            "",
-            "", 0, 0, "", ""),
+            "", 140, 2005, "", ""),
         new Film("Will Hunting - Genio ribelle",
             "Good Will Hunting",
             "https://image.tmdb.org/t/p/original/khZIGZMko7LVU7jMTdL2HNZ6QI7.jpg",
@@ -402,11 +414,11 @@ function get_films(pos) {
             "https://image.tmdb.org/t/p/original/7Xmwg9VnzhYHlyhOIpp5UkYWwDg.jpg",
             "",
             "", 97, 2007, "", ""),
-        new Film("10 cose che odio di te",
-            "10 Things I Hate About You",
-            "https://image.tmdb.org/t/p/original/jz1aH9vR1cHYsWPeAY3E7UMkxkH.jpg",
+        new Film("",
             "",
-            "", 97, 1999, "", ""),
+            "",
+            "",
+            "", 0, 0, "", ""),
         new Film("La tomba delle lucciole",
             "火垂るの墓",
             "https://image.tmdb.org/t/p/original/kwXG1DSpciHsBvcBojqMqGkU7pe.jpg",
@@ -472,7 +484,7 @@ function get_films(pos) {
             "https://image.tmdb.org/t/p/original/45DhCmjVGfTZwUZYgGzynF9hmg.jpg",
             "",
             "", 100, 2017, "", ""),
-        new Film("Profumo di donna",  //https://it.wikipedia.org/wiki/Profumo_di_donna
+        new Film("Profumo di donna",
             "Profumo di donna",
             "https://image.tmdb.org/t/p/original/wBSMKhXrrRd1WBbfxebvkJaSsxw.jpg",
             "",
@@ -493,6 +505,51 @@ function filter_type(type_names) {
     return get_films(categories[type_names]);
 }
 
+function stringMatching(string, search) {
+    function character_frequency(s1, s2) {
+        let count = 0;
+        for (let index = 0; index < Math.min(s1.length, s2.length); index++) {
+            if (s1[index] == s2[index]) {
+                count += 1;
+            }
+            else {
+                let distance = 0;
+                //andremo a cercare questa lettera, il contributo al count sarà
+                //proporzionale alla distanza a cui verrà trovata la prima occorrenza, se
+                //non viene trovata si toglierà al count l'inverso della lunghezza della
+                //parola (ovvero 1/l)
+                for (let l = 0; l < s2.length && distance == 0; l++) {
+                    if (l <= index) {
+                        //controllo all'indietro
+                        if (s1[index] == s2[index - l])
+                            distance = l;
+                    }
+                    if (l + index < s2.length) {
+                        //controllo in avanti
+                        if (s1[index] == s2[index + l])
+                            distance = l;
+                    }
+                }
+                if (distance == 0) { //lettera non trovata
+                    count -= 1 / Math.min(s1.length, s2.length)
+                } else {
+                    count += 1 / distance;
+                }
+            }
+        }
+        console.log("'" + s1 + "' è compatibile con '" + s2 + "' per il " + count / search.length + "% [" + count + " caratteri pesati in comune]");
+        //rapporto alla lunghezza
+        return count / search.length;
+    }
+    if (string.includes(search))
+        return 100;
+    if (string.toLowerCase().includes(search.toLowerCase()))
+        return 99;
+    let match = 0;
+    match += 100 * character_frequency(string, search);
+    return match;
+}
+
 function offline_research(string, type_names) {
     let search_targets = [];
     let found = [];
@@ -504,24 +561,26 @@ function offline_research(string, type_names) {
     else {
         search_targets = get_films(true);
     }
-    console.log("search_targets: ");
-    console.log(search_targets);
+    //console.log("search_targets: ");
+    //console.log(search_targets);
     if (!string) {
         found = search_targets;
-        console.log("stringa di ricerca vuota, found: ");
-        console.log(found);
+        //console.log("stringa di ricerca vuota, found: ");
+        //console.log(found);
     } else {
+        inner_found = { 'titolo': [], 'title': [] }
         for (let index = 0; index < search_targets.length; index++) {
             let tmp = search_targets[index];
-            if (tmp.ti.includes(string))
-                found.push(tmp);
+            if (stringMatching(tmp.ti, string) > 75)
+                inner_found['titolo'].push(tmp);
             else
-                if (tmp.to.includes(string))
-                    found.push(tmp);
+                if (stringMatching(tmp.to, string) > 75)
+                    inner_found['title'].push(tmp);
         }
+        found = inner_found['titolo'].concat(inner_found['title']);
     }
-    console.log("risultati ricerca \'" + string + "\' nelle categorie\'" + type_names + "\': ");
-    console.log(found);
+    //console.log("risultati ricerca \'" + string + "\' nelle categorie\'" + type_names + "\': ");
+    //console.log(found);
     return found;
 }
 

@@ -38,6 +38,8 @@
     </script>
     <div style="display: flex; flex-direction: row;flex-wrap: wrap; width: 80%;">
         <!-- pulsanti per riordinare lista film dopo la ricerca e etichette per selezionare i generi secondo cui filtrare -->
+        <input class="filter-checkbox" type="checkbox" value="guardare" id="filter-guardare" onchange="updatefilmlist()">
+        <label for="filter-guardare">ancora da guardare</label>
         <input class="filter-checkbox" type="checkbox" value="visto" id="filter-visto" onchange="updatefilmlist()">
         <label for="filter-visto">già visto ma nulla di chè</label>
         <input class="filter-checkbox" type="checkbox" value="download" id="filter-download" onchange="updatefilmlist()">
