@@ -4,9 +4,9 @@
 const categories = {
     'guardare': [
         3, 4, 6, 7, 8, 9,
-        12, 14, 15, 16, 17, 18,
+        12, 15, 16, 17, 18,
         20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
-        30, 31, 32, 33, 34, 39,
+        30, 31, 32, 33, 39,
         40, 41, 42, 43, 44, 45, 48, 49,
         50, 51, 52, 53, 54, 56, 57, 58, 59,
         61, 63, 64, 65, 67, 68, 69,
@@ -14,9 +14,9 @@ const categories = {
         80, 81, 82, 83, 85, 86, 87, 88, 89,
         90
     ],
-    'visto': [1, 5, 13, 46, 55, 79],
+    'visto': [1, 5, 13, 14, 46, 55, 79],
     'download': [0, 10, 35, 37, 47, 76, 84],
-    'stupendo': [2, 11, 19, 36, 38, 60, 62, 66, 74]
+    'stupendo': [2, 11, 19, 34, 36, 38, 60, 62, 66, 74]
 };
 
 function get_films(pos) {
@@ -108,7 +108,7 @@ function get_films(pos) {
             "Love Me Tender",
             "https://image.tmdb.org/t/p/original/a1vVEgUuyYjnp5UVVqqu6124kFS.jpg",
             "",
-            "", 89, 1956, "", ""),
+            "", 89, 1956, "", "https://youtu.be/VsgIFgLc8Nw?si=1PZCbufhnbTDeMtS"),
         new Film("Lo sceriffo scalzo",
             "Follow That Dream",
             "https://image.tmdb.org/t/p/original/yOpq3KyiVDFis01ekc0DUcGxJg8.jpg",
