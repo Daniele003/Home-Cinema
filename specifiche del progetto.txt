@@ -1,0 +1,23 @@
+quando ONLINE i dati dei film e serie tv vengono presi direttamente dal mio account TMDB e devono includere tutti i film e serie tv negli elenchi e liste quali: watchlist, favorites, ratings, list/8504984-usb, list/8557636-videocassette, list/8427222-dvd, list/8502359-natale, list/8505692-sport.
+quando OFFLINE i dati dei film e delle serie tv vengono presi da un file json statico salvato in locale, generato e tenuto aggiornato da uno script python in grado di vedere i film salvati in locale e cercare su tmdb tutti i dati relativi al film e se non riesce a trovare i dati del film chiede se il titolo che sta cercando è corretto se la risposta è no chiede in input il titolo corretto e ripete la ricerca, altrimenti salva solo il path del film.
+
+Il sito web deve essere ottimizzato si per la visualizzazione da PC che per la visualizzazione da telefono.
+
+I dati dovranno essere strutturati come descritto nel file "schema struttura dati.pdf".
+
+Deve essere implementata una funzionalità avanzata di ordinamento e filtraggio tramite: titolo, artisti, registi, personaggi, durata, valutazione, streaming, lista, genere cinematografico, etc …
+(il filtraggio lo si può pensare in due modalità: una più facile veloce e leggere che esclude tutto quello che non rispetta i filtri e una più complicata, lenta e pesante che riordina i film in base a un punteggio che rispecchia quanto ogni film rispetta i criteri del filtro).
+
+le credenziali da utilizzare per la API v4 di TMDB sono:
+apiReadAccessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4Y2ExNmRiNmU0N2E4NmEyZmRlOWQ2ZDI5OTNlNWJhNiIsIm5iZiI6MTY2NzMyMjg3NC40NDMsInN1YiI6IjYzNjE1M2ZhZmQ2MzAwMDA3ZTQxZWRmOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.H0o69tt66TehWh8ZDxlAn-64pjRuH2rAZVJjwy__rVc'
+accountId = '15480109'
+
+le FUNZIONALITÀ previste sono:
+- Visualizzazione generale del catalogo con applicazione dei filtri.
+- Visualizzazione estesa e dettagliata di un film.
+- Aggiunta di un film o serie tv del catalogo alla "lista delle voglie".
+- Scelta casuale di un film o serie tv dall'elenco delle voglie che può essere accettata oppure rifiutata, il rifiuto implica la rimozione dall'elenco e la scelta casuale di un altro film in elenco.
+- Se un film appartiene alla lista USB e il local path è disponibile quando viene visualizzato deve esserci la possibilità di riprodurlo.
+
+Il progetto si chiama HomeCinema e deve essere ottimizzato per l'utilizzo sia da telefono che da computer.
+
