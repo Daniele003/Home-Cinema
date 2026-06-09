@@ -1,4 +1,4 @@
-quando ONLINE i dati dei film e serie tv vengono caricati direttamente dal mio account TMDB e devono includere tutti i film e serie tv negli elenchi e liste quali: watchlist, favorites, ratings, list/8504984-usb, list/8557636-videocassette, list/8427222-dvd, list/8502359-natale, list/8505692-sport.
+quando ONLINE i dati dei film e serie tv vengono caricati direttamente dal mio account TMDB e devono includere tutti i film e serie tv negli elenchi e liste quali: watchlist, favorites, ratings, list/8504984-usb, list/8557636-videocassette, list/8427222-dvd, list/8502359-natale, list/8505692-sport. l'idea è utilizzare l'API v4 di TMDB in maniera intelligente in modo da caricare ogni volta solo ed esclusivamente i dati necessari alla corretta visualizzazione del contenuto desiderato dall'utente, ad esempio nella pagina iniziale caricare solamente i poster dei film da visualizzare e le informazioni per poter applicare gli ordinamenti e i filtri, quando poi si clicca su un film allora in quel momento si prendono i dati dettagliati del film e così via.
 quando OFFLINE i dati dei film e delle serie tv vengono presi da un file JSON statico salvato in locale, generato e tenuto aggiornato da uno script python in grado di vedere i film salvati in locale e cercare su tmdb tutti i dati relativi al film e se non riesce a trovare i dati del film chiede se il titolo che sta cercando è corretto se la risposta è no chiede in input il titolo corretto e ripete la ricerca, altrimenti salva solo il path del film.
 
 Il sito web deve essere ottimizzato si per la visualizzazione da PC che per la visualizzazione da telefono.
@@ -19,8 +19,7 @@ le FUNZIONALITÀ previste sono:
 - Scelta casuale di un film o serie tv dalla "lista delle voglie" che può essere accettata oppure rifiutata, il rifiuto implica la rimozione dalla "lista del voglie" e la scelta casuale di un altro film nella lista.
 - Se un film appartiene alla lista "USB" e nel file JSON il local path è presente, quando vengono visualizzati i dettagli del film deve esserci la possibilità di riprodurlo.
 
-I dati relativi a ordinamento, filtri e "lista delle voglie" devono permanere.
+I dati relativi a ordinamento, filtri e "lista delle voglie" devono permanere tramite il local storage, dei cookies o l'url.
 
 Il progetto si chiama HomeCinema e deve essere ottimizzato per l'utilizzo sia da telefono che da computer.
 
-Il progetto deve essere leggero per non appesantire il server e utilizzare principalmente codice lato client.
