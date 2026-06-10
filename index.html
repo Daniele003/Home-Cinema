@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="master.css">
+    <title>Home Cinema | Benvenuto</title>
+    <script type="speculationrules">
+        {
+            "prerender": [
+                {
+                    "source": "list",
+                    "urls": ["home.html"]                }
+            ]
+        }
+    </script>
+    <script src="Builders.js"></script>
+</head>
+
+<body>
+    <!-- IDEA: mostrare animazione del dialogo, alla fine spariscono tutte le scritte ma resta l'immagine al centro che si ricciolisce e con uno scorrimento da dietro l'immagine appare la scritta Home Cinema -->
+    <!--
+        Dialogo di ispirazione:
+            Thorin: Che cos'è? Nella tua mano?
+            Bilbo: Non è niente.
+            Thorin: Mostrami.
+            Bilbo: [Mostra una ghianda] L'ho raccolta nel giardino di Beorn.
+            Thorin: E l'hai portata fino a qui...
+            Bilbo: La pianterò nel mio giardino, a casa Baggins.
+            Thorin: Un misero premio da riportare nella Contea.
+            Bilbo: Beh, un giorno crescerà. E ogni volta che lo guarderò ricorderò. Ricorderò quello che è successo, il brutto, il bello. E la fortuna che ho avuto a tornare a casa.
+    -->
+    <script>document.write(html_logo())</script>
+    <div class="Bilbo">L'ho raccolta nel giardino di Beorn.</div>
+    <div class="Thorin">E l'hai portata fino a qui...</div>
+    <div class="Bilbo">La pianterò nel mio giardino, a casa Baggins.</div>
+    <div class="Thorin">Un misero premio da riportare nella Contea.</div>
+    <div class="Bilbo">Beh, un giorno crescerà. E ogni volta che lo guarderò ricorderò. Ricorderò quello che è successo,
+        il brutto, il bello.</div>
+    <script>
+        // Simulazione di un caricamento dei dati con un timeout
+        setTimeout(function () {
+            // Dopo 3 secondi, reindirizza alla pagina home.html
+            location.href = "local.html";
+        }, 3000);
+    </script>
+</body>
+
+</html>
