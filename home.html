@@ -8,9 +8,140 @@
     dado = document.createElement("button");
     dado.innerText = "Dado";
     dado = document.createElement("td").appendChild(dado);
-    document.getElementById("1").appendChild(dado);
+    document.getElementById("fordice").appendChild(dado);
 </script>
-<main></main>
+<main>
+    <script>
+        const apiReadAccessToken = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4Y2ExNmRiNmU0N2E4NmEyZmRlOWQ2ZDI5OTNlNWJhNiIsIm5iZiI6MTY2NzMyMjg3NC40NDMsInN1YiI6IjYzNjE1M2ZhZmQ2MzAwMDA3ZTQxZWRmOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.H0o69tt66TehWh8ZDxlAn-64pjRuH2rAZVJjwy__rVc';
+        const accountId = '15480109';
+        const links = {};
+        Array("watchlist", "favorite", "rated").forEach(category => {
+            links[`https://api.themoviedb.org/3/account/${accountId}/${category}/movies?language=it-IT`] = category
+            links[`https://api.themoviedb.org/3/account/${accountId}/${category}/tv?language=it-IT`] = category
+            document.getElementById("filtri avanzati liste").innerHTML += html_filtro_lista(category)
+        });
+
+        // carico le liste che ci sono nel profilo TMDB e inserisco bottoni di filtraggio di ciascuna lista
+        const elenco_liste = `https://api.themoviedb.org/3/account/${accountId}/lists?language=it-IT`
+        fetch(elenco_liste, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${apiReadAccessToken}`,
+                'Content-Type': 'application/json;charset=utf-8'
+            }
+        }).then(response => response.json()).then(data => {
+            console.log(data);
+            data.results.forEach(lista => {
+                links[`https://api.themoviedb.org/4/list/${lista.id}-${lista.name}?language=it-IT`] = lista.name
+                document.getElementById("filtri avanzati liste").innerHTML += html_filtro_lista(lista.name)
+            });
+            console.log(links);
+        }).catch(error => console.error('Errore durante il caricamento delle liste nel tuo profilo:', error));
+
+        // scarico l'elenco completo dei generi cinematografici usati da TMDB e inserisco nei filtri le etichette nascoste
+        const elenco_generi = `https://api.themoviedb.org/3/genre/movie/list?language=it-IT`
+        fetch(elenco_generi, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${apiReadAccessToken}`,
+                'Content-Type': 'application/json;charset=utf-8'
+            }
+        }).then(response => response.json()).then(data => {
+            console.log(data);
+            data.genres.forEach(genre => {
+                document.getElementById("filtri avanzati generi").innerHTML += html_filtro_genere(genre.id, genre.name)
+            });
+        }).catch(error => console.error('Errore durante il caricamento degli generi:', error));
+
+
+
+        // costruisco il catalogo con le preview dei film
+        // Funzione di utilità per creare una pausa (delay) in millisecondi
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        // Funzione ricorsiva per caricare tutte le pagine di una categoria di film (es. watchlist, rated, favorite)
+        async function movies_full_load(source_link_url, page = 1) {
+            // Otteniamo il link base dal dizionario
+            let base_link = source_link_url;
+
+            // Gestiamo l'aggiunta del parametro page correttamente
+            // (controlliamo se il link ha già un '?' per altri parametri)
+            let separator = base_link.includes('?') ? '&' : '?';
+            let fetch_url = `${base_link}${separator}page=${page}`;
+
+            try {
+                const response = await fetch(fetch_url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${apiReadAccessToken}`,
+                        'Content-Type': 'application/json;charset=utf-8'
+                    }
+                });
+
+                // Gestione esplicita dell'errore "Too Many Requests" (Blocco API)
+                if (response.status === 429) {
+                    console.warn(`Richieste troppo veloci. Pausa forzata alla pagina ${page}...`);
+                    await delay(2000); // Aspetta 2 secondi
+                    return movies_full_load(links[source_link_url], page); // Riprova la stessa pagina
+                }
+
+                if (!response.ok) {
+                    throw new Error(`Errore HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log(`Caricata pagina ${page}:`, fetch_url, data);
+
+                // 1. Accumuliamo tutto l'HTML in una stringa
+                let html_accumulator = "";
+
+                data.results.forEach(item => {
+                    // Capiamo se è una Serie TV: 
+                    // controlliamo se ha 'media_type' impostato su 'tv' OPPURE se ha la chiave 'name' invece di 'title'
+                    let isTvShow = item.media_type === 'tv' || item.hasOwnProperty('name');
+
+                    // sblocco i filtri dei generi
+                    item.genre_ids.forEach(genreId => {
+                        let genreButton = document.getElementById(`g${genreId}`);
+                        if (genreButton) {
+                            genreButton.classList.remove("hidden");
+                        }
+                    });
+
+                    if (isTvShow) {
+                        html_accumulator += html_tv_preview(links[source_link_url], item);
+                    } else {
+                        html_accumulator += html_movie_preview(links[source_link_url], item);
+                    }
+                });
+                // 2. Aggiorniamo il DOM UNA SOLA VOLTA per pagina
+                document.getElementsByTagName("main")[0].innerHTML += html_accumulator;
+
+                // 3. Aggiorniamo il conteggio
+                let risultatiEl = document.getElementById("#risultati");
+                let currentCount = parseInt(risultatiEl.innerText) || 0;
+                risultatiEl.innerText = (currentCount + data.results.length) + " titoli";
+
+                // 4. Se ci sono altre pagine, proseguiamo con la ricorsione
+                if (data.page < data.total_pages) {
+                    // IMPONIAMO UN RITARDO tra una richiesta e l'altra per non stressare l'API
+                    // TMDB solitamente accetta max 40-50 richieste ogni 10 secondi.
+                    // 300 millisecondi di pausa sono un ottimo compromesso di sicurezza.
+                    await delay(200);
+                    await movies_full_load(source_link_url, data.page + 1);
+                }
+
+            } catch (error) {
+                console.error('Errore durante il caricamento dei film:', error);
+            }
+        }
+
+        //lancio il caricamento di tutte le pagine di tutti i link dei film
+        Object.keys(links).forEach(link_url => {
+            movies_full_load(link_url);
+        })
+    </script>
+</main>
 <footer></footer>
 </body>
 
