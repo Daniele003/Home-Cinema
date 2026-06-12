@@ -41,8 +41,12 @@
     <script>
         // Simulazione di un caricamento dei dati con un timeout
         setTimeout(function () {
-            // Dopo 3 secondi, reindirizza alla pagina home.html
-            location.href = "local.html";
+            // Dopo 3 secondi, reindirizza alla pagina home.html se è online, oppure alla pagina local.html se è offline
+            if (navigator.onLine) {
+                location.href = "home.html";
+            } else {
+                location.href = "local.html";
+            }
         }, 3000);
     </script>
 </body>
