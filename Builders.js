@@ -2,7 +2,7 @@ function html_logo() {
     return '<table><tr><td width="45%"><img src="logo.png" alt="[Mostra una ghianda]"></td><td><div>Home <br> Cinema</div></td></tr></table>'
 }
 
-function html_testa() {
+function html_testa(page_title) {
     return '<html lang="it">'
         //intestazione html di tutte le pagine
         + '<head>'
