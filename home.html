@@ -22,7 +22,7 @@
 
         // carico le liste che ci sono nel profilo TMDB e inserisco bottoni di filtraggio di ciascuna lista
         const elenco_liste = `https://api.themoviedb.org/3/account/${accountId}/lists?language=it-IT`
-        fetch(elenco_liste, {
+        const fetchListe = fetch(elenco_liste, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${apiReadAccessToken}`,
@@ -39,7 +39,7 @@
 
         // scarico l'elenco completo dei generi cinematografici usati da TMDB e inserisco nei filtri le etichette nascoste
         const elenco_generi = `https://api.themoviedb.org/3/genre/movie/list?language=it-IT`
-        fetch(elenco_generi, {
+        const fetchGeneri = fetch(elenco_generi, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${apiReadAccessToken}`,
@@ -135,10 +135,15 @@
             }
         }
 
-        //lancio il caricamento di tutte le pagine di tutti i link dei film
-        Object.keys(links).forEach(link_url => {
-            movies_full_load(link_url);
-        })
+        // Aspettiamo che ENTRAMBE le fetch siano concluse
+        Promise.all([fetchListe, fetchGeneri]).then(() => {
+            console.log("Filtri e Liste caricati. L'oggetto links ora è completo:", links);
+
+            // Solo ORA lancio il caricamento di tutte le pagine di tutti i link
+            Object.keys(links).forEach(link_url => {
+                movies_full_load(link_url);
+            });
+        });
     </script>
 </main>
 <footer></footer>
