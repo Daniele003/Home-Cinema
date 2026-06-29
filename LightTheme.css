@@ -1,0 +1,9 @@
+body {
+    background-color: beige;
+    color: hsl(23, 62%, 23%);
+}
+
+header {
+    background-color: beige;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

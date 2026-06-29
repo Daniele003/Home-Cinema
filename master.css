@@ -5,14 +5,10 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: beige;
-    color: hsl(23, 62%, 23%);
 }
 
 header {
     position: sticky;
-    background-color: beige;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     top: 0;
 }
 
