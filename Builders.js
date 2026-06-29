@@ -2,26 +2,46 @@ function html_logo() {
     return '<table><tr><td width="45%"><img src="logo.png" alt="[Mostra una ghianda]"></td><td><div>Home <br> Cinema</div></td></tr></table>'
 }
 
+function change_theme(){
+    let new_child = document.createElement('link');
+    new_child.rel = 'stylesheet';
+    let target = document.querySelector('link[href="LightTheme.css"]');
+    if (target){
+        new_child.href = 'DarkTheme.css';
+        document.head.replaceChild(new_child, target);
+    } else {
+        new_child.href = 'LightTheme.css';
+        document.head.replaceChild(new_child, document.querySelector('link[href="DarkTheme.css"]'));
+    }
+    
+    
+}
+
 function html_testa(page_title) {
-    return '<html lang="it">'
+    let s = '<html lang="it">'
         //intestazione html di tutte le pagine
         + '<head>'
         + '<meta charset="UTF-8">'
         + '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
         + '<link rel="stylesheet" href="master.css">'
-        + '<link rel="stylesheet" href="dice.css">'
-        + '<title>' + page_title + '</title>'
+    if ((new Date()).getHours() >= 22 || (new Date()).getHours() <= 6) {
+        s += '<link rel="stylesheet" href="DarkTheme.css">'
+    } else {
+        s += '<link rel="stylesheet" href="LightTheme.css">'
+    }
+    s += '<title>' + page_title + '</title>'
         + '</head>'
         + '<body>'
         + '<header>'
         + '<nav>'
-        + '<table>' + '<tr id="fordice">' + '<td width="20%">' + '<a href="index.html">' + html_logo() + '</a></td> <td>' + '<ul>' + '<li>' + '<a href="home.html"> Catalogo online </a>' + '</li> <li>' + '<a href="local.html"> Disponibili in locale </a>' + '</li>' + '</ul>' + '</td>' + '<td>' + '<button> &#x1F307 &#x1F306 </button>' + '</td>' + '</tr></table>'
+        + '<table>' + '<tr id="fordice">' + '<td width="20%">' + '<a href="index.html">' + html_logo() + '</a></td> <td>' + '<ul>' + '<li>' + '<a href="home.html"> Catalogo online </a>' + '</li> <li>' + '<a href="local.html"> Disponibili in locale </a>' + '</li>' + '</ul>' + '</td>' + '<td>' + '<input type="checkbox" id="change theme" onchange="change_theme()"><label for="change theme"> &#x1F307 &#x1F306 </label>' + '</td>' + '</tr></table>'
         + '<table><tr>' + '<td>' + '<button>Filtri Avanzati</button> <input type="search" placeholder="cerca...">' + '</td><td id="#risultati">0 titoli' + '<!-- mentre conta mostra un caricamento, solo quando ha finito di contare mostra il numero effettivo -->' + '</td>' + '</tr></table>'
         + '<table><tr id="filtri avanzati liste"></tr></table>'
         + '<table><tr id="filtri avanzati generi"></tr></table>'
         + '<table><tr>' + '<td> Ordina per: <button>Titolo</button> <button>Durata</button> <button>Anno</button> <button>Voto</button>' + '</td>' + '</tr>' + '</table>'
         + '</nav>'
         + '</header>'
+    return s
 }
 
 function html_movie_preview(source_name, _json) {
