@@ -2,19 +2,19 @@ function html_logo() {
     return '<table><tr><td width="45%"><img src="logo.png" alt="[Mostra una ghianda]"></td><td><div>Home <br> Cinema</div></td></tr></table>'
 }
 
-function change_theme(){
+function change_theme() {
     let new_child = document.createElement('link');
     new_child.rel = 'stylesheet';
     let target = document.querySelector('link[href="LightTheme.css"]');
-    if (target){
+    if (target) {
         new_child.href = 'DarkTheme.css';
         document.head.replaceChild(new_child, target);
     } else {
         new_child.href = 'LightTheme.css';
         document.head.replaceChild(new_child, document.querySelector('link[href="DarkTheme.css"]'));
     }
-    
-    
+
+
 }
 
 function html_testa(page_title) {
@@ -38,7 +38,7 @@ function html_testa(page_title) {
         + '<table><tr>' + '<td>' + '<button>Filtri Avanzati</button> <input type="search" placeholder="cerca...">' + '</td><td id="#risultati">0 titoli' + '<!-- mentre conta mostra un caricamento, solo quando ha finito di contare mostra il numero effettivo -->' + '</td>' + '</tr></table>'
         + '<table><tr id="filtri avanzati liste"></tr></table>'
         + '<table><tr id="filtri avanzati generi"></tr></table>'
-        + '<table><tr>' + '<td> Ordina per: <button>Titolo</button> <button>Durata</button> <button>Anno</button> <button>Voto</button>' + '</td>' + '</tr>' + '</table>'
+        + 'Ordina per: <input list="ordine"><datalist id="ordine"><option>Titolo</option> <option disabled>Durata</option> <option>Anno</option> <option>Voto</option></datalist>'
         + '</nav>'
         + '</header>'
     return s
@@ -70,7 +70,13 @@ function html_movie_preview(source_name, _json) {
         target.dataset.sources += ' ' + source_name
         return ''
     } else {
-        return '<div id="' + mID + '" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">' + _json.original_title + ' (' + _json.release_date + ')</div>'
+        return '<div id="' + mID + '" class="movie card" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">'
+            + '<img src="https://image.tmdb.org/t/p/w342' + _json.poster_path + '" alt="...">'
+            + '<div  class="preview">'
+            + '<h5>' + _json.original_title + '</h5> <h6>' + _json.release_date + '</h6>'
+            + '<p> ' + _json.overview + ' </p>'
+            + '</div>'
+            + '</div>'
     }
 }
 
@@ -99,7 +105,13 @@ function html_tv_preview(source_name, _json) {
         target.dataset.sources += ' ' + source_name
         return ''
     } else {
-        return '<div id="' + tvID + '" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">' + _json.original_name + ' (' + _json.first_air_date + ') (SERIE TV)</div>'
+        return '<div id="' + tvID + '" class="tv card" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">'
+            + '<img src="https://image.tmdb.org/t/p/w300' + _json.poster_path + '" alt="...">'
+            + '<div  class="preview">'
+            + '<h4>' + _json.name + '</h4> <h6>' + _json.first_air_date + '</h6>'
+            + '<p> ' + _json.overview + ' </p>'
+            + '</div>'
+            + '</div>'
     }
 }
 
