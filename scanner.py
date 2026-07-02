@@ -257,14 +257,6 @@ if __name__ == "__main__":
             except: pass
         dati_completi[path] = {"percorso_file": path, "info_ricerca": info, "info_dettagliate": dettagli}
 
-    # Esporta come JSON
     with open("libreria_media.json", "w", encoding="utf-8") as f:
         json.dump(dati_completi, f, indent=4, ensure_ascii=False, cls=TMDBEncoder)
-    
-    # Esporta come file JS per bypassare CORS in locale
-    with open("libreria_media.js", "w", encoding="utf-8") as f:
-        f.write("const libreria_media = ")
-        json.dump(dati_completi, f, indent=4, ensure_ascii=False, cls=TMDBEncoder)
-        f.write(";")
-        
-    print("\nLibreria aggiornata (libreria_media.json e libreria_media.js)!")
+    print("\nLibreria aggiornata!")
