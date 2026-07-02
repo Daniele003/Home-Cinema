@@ -44,7 +44,7 @@ function html_testa(page_title) {
     return s
 }
 
-function html_movie_preview(source_name, _json) {
+function html_movie_preview(source_name, _json, play=false) {
     /* struttura JSON attesa
         adult:
         backdrop_path:
@@ -75,12 +75,13 @@ function html_movie_preview(source_name, _json) {
             + '<div  class="preview">'
             + '<h5>' + _json.original_title + '</h5> <h6>' + _json.release_date + '</h6>'
             + '<p> ' + _json.overview + ' </p>'
+            + play ? '<video controls><source src="' + play + '"></video>' :''
             + '</div>'
             + '</div>'
     }
 }
 
-function html_tv_preview(source_name, _json) {
+function html_tv_preview(source_name, _json, play=false) {
     /* struttura JSON attesa
         adult:
         backdrop_path:
@@ -110,6 +111,7 @@ function html_tv_preview(source_name, _json) {
             + '<div  class="preview">'
             + '<h4>' + _json.name + '</h4> <h6>' + _json.first_air_date + '</h6>'
             + '<p> ' + _json.overview + ' </p>'
+            + (play ? '<video controls><source src="' + play + '"></video>' : '')
             + '</div>'
             + '</div>'
     }
