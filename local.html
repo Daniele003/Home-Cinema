@@ -1,29 +1,61 @@
 <!DOCTYPE html>
-<script src="Builders.js"></script>
-<script type="text/javascript">
-    document.write(html_testa("Home Cinema | Catalogo"))
-</script>
-<main id="lista">
-
-    <script>
-        const data = "libreria_media.json".parse(document.getElementById("libreria").textContent);
-        console.log(data);
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <script src="Builders.js"></script>
+    <!-- Carichiamo il file JS che contiene la variabile libreria_media -->
+    <script src="libreria_media.js"></script>
+    <script type="text/javascript">
+        document.write(html_testa("Home Cinema | Catalogo Locale"));
     </script>
-
+</head>
+<body>
+<main id="lista">
+    <div id="container-film" style="display: flex; flex-wrap: wrap; gap: 20px; padding: 20px;">
+        <!-- I film verranno inseriti qui -->
+    </div>
+    
     <script>
-        // Usiamo fetch per caricare il file
+        document.addEventListener("DOMContentLoaded", function() {
+            const container = document.getElementById('container-film');
+            
+            // Verifica se i dati sono stati caricati correttamente
+            if (typeof libreria_media === 'undefined') {
+                container.innerHTML = "<p>Errore: libreria_media.js non trovato o non caricato. Esegui scanner.py per generarlo.</p>";
+                return;
+            }
 
-        // 'data' ora contiene il tuo array di utenti
-        const lista = document.getElementById('lista');
-        lista.innerHTML = "";
+            const entries = Object.entries(libreria_media);
+            if (entries.length === 0) {
+                container.innerHTML = "<p>Nessun film trovato nella libreria locale.</p>";
+                return;
+            }
 
-        // Cicliamo tra i dati e li stampiamo nell'HTML
-        data.forEach((k, v) => {
-            lista.innerHTML += html_card("", v["info_ricerca"]["json"], k);
+            let html_content = "";
+            
+            // Cicliamo sui dati della libreria
+            // La struttura è: { "percorso/file": { "info_ricerca": {...}, "info_dettagliate": {...} } }
+            entries.forEach(([path, data]) => {
+                const info = data.info_dettagliate || data.info_ricerca;
+                const media_type = (data.info_ricerca && data.info_ricerca.media_type) || 'movie';
+                
+                if (media_type === 'movie') {
+                    html_content += html_movie_preview("Locale", info, path);
+                } else {
+                    html_content += html_tv_preview("Locale", info, path);
+                }
+            });
+            
+            container.innerHTML = html_content;
+            
+            // Aggiorna il conteggio dei titoli nell'header (se l'elemento esiste)
+            const countElem = document.getElementById('#risultati');
+            if (countElem) {
+                countElem.innerText = entries.length + " titoli";
+            }
         });
     </script>
 </main>
 <footer></footer>
 </body>
-
 </html>
