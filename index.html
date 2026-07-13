@@ -11,7 +11,7 @@
             "prerender": [
                 {
                     "source": "list",
-                    "urls": ["home.html"]                }
+                    "urls": ["home.html", "local.html"]                }
             ]
         }
     </script>
@@ -45,7 +45,7 @@
             if (navigator.onLine) {
                 location.href = "home.html";
             } else {
-                location.href = "home.html";
+                location.href = "local.html";
             }
         }, 3000);
     </script>

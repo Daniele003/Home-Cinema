@@ -34,7 +34,7 @@ function html_testa(page_title) {
         + '<body>'
         + '<header>'
         + '<nav>'
-        + '<table>' + '<tr>' + '<td width="20%">' + '<a href="index.html">' + html_logo() + '</a></td> <td id="fordice">' + '<input type="checkbox" id="change theme" onchange="change_theme()"><label for="change theme"> &#x1F307 &#x1F306 </label>' + '</td>' + '</tr></table>'
+        + '<table>' + '<tr id="fordice">' + '<td width="20%">' + '<a href="index.html">' + html_logo() + '</a></td> <td>' + '<ul>' + '<li>' + '<a href="home.html"> Catalogo online </a>' + '</li> <li>' + '<a href="local.html"> Disponibili in locale </a>' + '</li>' + '</ul>' + '</td>' + '<td>' + '<input type="checkbox" id="change theme" onchange="change_theme()"><label for="change theme"> &#x1F307 &#x1F306 </label>' + '</td>' + '</tr></table>'
         + '<table><tr>' + '<td>' + '<button>Filtri Avanzati</button> <input type="search" placeholder="cerca...">' + '</td><td id="#risultati">0 titoli' + '<!-- mentre conta mostra un caricamento, solo quando ha finito di contare mostra il numero effettivo -->' + '</td>' + '</tr></table>'
         + '<table><tr id="filtri avanzati liste"></tr></table>'
         + '<table><tr id="filtri avanzati generi"></tr></table>'
@@ -70,15 +70,12 @@ function html_movie_preview(source_name, _json, play=false) {
         target.dataset.sources += ' ' + source_name
         return ''
     } else {
-        let video = ''
-        if (play)
-            video = '<video controls><source src="' + play + '"></video>'
         return '<div id="' + mID + '" class="movie card" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">'
             + '<img src="https://image.tmdb.org/t/p/w342' + _json.poster_path + '" alt="...">'
             + '<div  class="preview">'
             + '<h5>' + _json.original_title + '</h5> <h6>' + _json.release_date + '</h6>'
             + '<p> ' + _json.overview + ' </p>'
-            + video
+            + play ? '<video controls><source src="' + play + '"></video>' :''
             + '</div>'
             + '</div>'
     }
@@ -109,15 +106,12 @@ function html_tv_preview(source_name, _json, play=false) {
         target.dataset.sources += ' ' + source_name
         return ''
     } else {
-        let video = ''
-        if (play)
-            video = '<video controls><source src="' + play + '"></video>'
         return '<div id="' + tvID + '" class="tv card" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">'
             + '<img src="https://image.tmdb.org/t/p/w300' + _json.poster_path + '" alt="...">'
             + '<div  class="preview">'
             + '<h4>' + _json.name + '</h4> <h6>' + _json.first_air_date + '</h6>'
             + '<p> ' + _json.overview + ' </p>'
-            + video
+            + (play ? '<video controls><source src="' + play + '"></video>' : '')
             + '</div>'
             + '</div>'
     }

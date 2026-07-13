@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<script src="Builders.js"></script>
+<script type="text/javascript">
+    document.write(html_testa("Home Cinema | Catalogo"))
+</script>
+<main id="lista">
+
+    <script>
+        const data = "libreria_media.json".parse(document.getElementById("libreria").textContent);
+        console.log(data);
+    </script>
+
+    <script>
+        // Usiamo fetch per caricare il file
+
+        // 'data' ora contiene il tuo array di utenti
+        const lista = document.getElementById('lista');
+        lista.innerHTML = "";
+
+        // Cicliamo tra i dati e li stampiamo nell'HTML
+        data.forEach((k, v) => {
+            lista.innerHTML += html_card("", v["info_ricerca"]["json"], k);
+        });
+    </script>
+</main>
+<footer></footer>
+</body>
+
+</html>
