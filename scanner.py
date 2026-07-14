@@ -14,7 +14,7 @@ tmdb.api_key = '8ca16db6e47a86a2fde9d6d2993e5ba6'
 tmdb.language = 'it'
 
 EXCLUDE_FILE = "exclude_list.txt"
-VIDEO_EXTENSIONS = {'.mp4', '.mkv', '.avi', '.mov', '.wmv', '.flv', '.webm'}
+VIDEO_EXTENSIONS = {".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".webm"}
 
 def carica_esclusioni():
     if os.path.exists(EXCLUDE_FILE):
@@ -91,7 +91,7 @@ def mostra_menu(titolo, opzioni, selezione_iniziale=0):
         for i in range(inizio, fine):
             opzione = str(opzioni[i])
             prefisso = " > " if i == selezione_corrente else "   "
-            spazio_testo = cols - len(prefisso) - 5
+            spazio_testo = cols - len(opzione) - len(prefisso) - 5
             testo_troncato = (opzione[:spazio_testo] + '..') if len(opzione) > spazio_testo else opzione
             if i == selezione_corrente:
                 print(f"\033[1;32m{prefisso}{testo_troncato}\033[0m")
@@ -205,64 +205,68 @@ def scan_recursive(directory, esclusioni, risultati):
                 risultati[full_path] = Trova(item, force_type='movie')
 
 def genera_html(dati):
-    html_template = """<!DOCTYPE html>
+    # Converti i dati Python in una stringa JSON per incorporarli nel JavaScript
+    # Usiamo TMDBEncoder per gestire gli oggetti TMDb
+    json_data_str = json.dumps(dati, indent=4, ensure_ascii=False, cls=TMDBEncoder)
+
+    html_template = f"""<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="master.css">
     <script src="Builders.js"></script>
-    <script type="text/javascript">
-        document.write(html_testa("Home Cinema | Catalogo Locale"))
-    </script>
+    <script type="text/javascript"></script>
+    <title>Home Cinema | Catalogo Locale</title>
 </head>
 <body>
-<main id="lista">
-    <div class="catalogo-container" style="display: flex; flex-wrap: wrap; gap: 20px; padding: 20px;">
-        {cards_html}
-    </div>
-</main>
 <script>
-    // Aggiornamento conteggio titoli
-    const count = document.querySelectorAll('.card').length;
-    const risultatiEl = document.getElementById("#risultati");
-    if (risultatiEl) risultatiEl.innerText = count + " titoli";
+    document.write(html_testa("Home Cinema | Catalogo Locale"));
 </script>
+<main>
+    <script>
+        const localData = {json_data_str};
+        const lista = document.getElementsByTagName("main")[0];
+        let html_accumulator = "";
+        let currentCount = 0;
+
+        for (const path in localData) {
+            const info = localData[path];
+            const media_info = info.info_ricerca;
+            if (!media_info) continue;
+
+            const media_type = media_info.media_type;
+            
+            // In un ambiente reale, qui si sbloccherebbero i bottoni dei generi
+            // se fossero presenti e gestiti da Builders.js per local.html
+            if (media_info.genre_ids) {
+                media_info.genre_ids.forEach(genreId => {
+                    // let genreButton = document.getElementById(`g${genreId}`);
+                    // if (genreButton) { genreButton.classList.remove("hidden"); }
+                });
+            }
+
+            // Passiamo il percorso del file locale come terzo argomento 'play'
+            if (media_type === 'tv') {
+                html_accumulator += html_tv_preview("Locale", media_info, `file:///{path}`);
+            } else {
+                html_accumulator += html_movie_preview("Locale", media_info, `file:///{path}`);
+            }
+            currentCount++;
+        }
+        lista.innerHTML += html_accumulator;
+
+        // Aggiornamento conteggio titoli
+        const risultatiEl = document.getElementById("#risultati");
+        if (risultatiEl) risultatiEl.innerText = currentCount + " titoli";
+    </script>
+</main>
 <footer></footer>
 </body>
 </html>"""
 
-    cards_html = ""
-    for path, info in dati.items():
-        media_info = info.get("info_ricerca")
-        if not media_info: continue
-        
-        media_type = media_info.get("media_type")
-        # Preparazione dati per Builders.js (simulazione ambiente JS)
-        # Invece di chiamare JS, generiamo l'HTML che Builders.js produrrebbe
-        
-        title = media_info.get("title") or media_info.get("name")
-        date = media_info.get("release_date") or media_info.get("first_air_date") or ""
-        overview = media_info.get("overview", "")
-        poster = media_info.get("poster_path")
-        poster_url = f"https://image.tmdb.org/t/p/w342{poster}" if poster else "https://via.placeholder.com/342x513?text=No+Poster"
-        
-        genre_ids = " ".join(map(str, media_info.get("genre_ids", [])))
-        mID = f"{'mid' if media_type == 'movie' else 'tv'}{media_info.get('id')}"
-        
-        card = f'''
-        <div id="{mID}" class="{media_type} card" data-lists="Locale" data-genres="{genre_ids}">
-            <img src="{poster_url}" alt="{title}">
-            <div class="preview">
-                {"<h5>" if media_type == 'movie' else "<h4>"}{title}{"</h5>" if media_type == 'movie' else "</h4>"}
-                <h6>{date[:4]}</h6>
-                <p>{overview}</p>
-                <video controls><source src="file://{path}"></video>
-            </div>
-        </div>'''
-        cards_html += card
-
     with open("local.html", "w", encoding="utf-8") as f:
-        f.write(html_template.format(cards_html=cards_html))
+        f.write(html_template)
     print("\nPagina local.html generata con successo!")
 
 if __name__ == "__main__":
