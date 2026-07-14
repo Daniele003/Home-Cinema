@@ -44,7 +44,7 @@ function html_testa(page_title) {
     return s
 }
 
-function html_movie_preview(source_name, _json, play=false) {
+function html_movie_preview(source_name, _json, play = false) {
     /* struttura JSON attesa
         adult:
         backdrop_path:
@@ -70,18 +70,21 @@ function html_movie_preview(source_name, _json, play=false) {
         target.dataset.sources += ' ' + source_name
         return ''
     } else {
+        let video = ''
+        if (play)
+            video = '<video controls><source src="' + play + '"></video>'
         return '<div id="' + mID + '" class="movie card" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">'
             + '<img src="https://image.tmdb.org/t/p/w342' + _json.poster_path + '" alt="...">'
             + '<div  class="preview">'
             + '<h5>' + _json.original_title + '</h5> <h6>' + _json.release_date + '</h6>'
             + '<p> ' + _json.overview + ' </p>'
-            + play ? '<video controls><source src="' + play + '"></video>' :''
+            + video
             + '</div>'
             + '</div>'
     }
 }
 
-function html_tv_preview(source_name, _json, play=false) {
+function html_tv_preview(source_name, _json, play = false) {
     /* struttura JSON attesa
         adult:
         backdrop_path:
@@ -106,12 +109,15 @@ function html_tv_preview(source_name, _json, play=false) {
         target.dataset.sources += ' ' + source_name
         return ''
     } else {
+        let video = ''
+        if (play)
+            video = '<video controls><source src="' + play + '"></video>'
         return '<div id="' + tvID + '" class="tv card" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">'
             + '<img src="https://image.tmdb.org/t/p/w300' + _json.poster_path + '" alt="...">'
             + '<div  class="preview">'
             + '<h4>' + _json.name + '</h4> <h6>' + _json.first_air_date + '</h6>'
             + '<p> ' + _json.overview + ' </p>'
-            + (play ? '<video controls><source src="' + play + '"></video>' : '')
+            + video
             + '</div>'
             + '</div>'
     }
