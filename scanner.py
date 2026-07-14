@@ -204,6 +204,67 @@ def scan_recursive(directory, esclusioni, risultati):
                 print(f"Analisi Film: {item}...", end="\r")
                 risultati[full_path] = Trova(item, force_type='movie')
 
+def genera_html(dati):
+    html_template = """<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="Builders.js"></script>
+    <script type="text/javascript">
+        document.write(html_testa("Home Cinema | Catalogo Locale"))
+    </script>
+</head>
+<body>
+<main id="lista">
+    <div class="catalogo-container" style="display: flex; flex-wrap: wrap; gap: 20px; padding: 20px;">
+        {cards_html}
+    </div>
+</main>
+<script>
+    // Aggiornamento conteggio titoli
+    const count = document.querySelectorAll('.card').length;
+    const risultatiEl = document.getElementById("#risultati");
+    if (risultatiEl) risultatiEl.innerText = count + " titoli";
+</script>
+<footer></footer>
+</body>
+</html>"""
+
+    cards_html = ""
+    for path, info in dati.items():
+        media_info = info.get("info_ricerca")
+        if not media_info: continue
+        
+        media_type = media_info.get("media_type")
+        # Preparazione dati per Builders.js (simulazione ambiente JS)
+        # Invece di chiamare JS, generiamo l'HTML che Builders.js produrrebbe
+        
+        title = media_info.get("title") or media_info.get("name")
+        date = media_info.get("release_date") or media_info.get("first_air_date") or ""
+        overview = media_info.get("overview", "")
+        poster = media_info.get("poster_path")
+        poster_url = f"https://image.tmdb.org/t/p/w342{poster}" if poster else "https://via.placeholder.com/342x513?text=No+Poster"
+        
+        genre_ids = " ".join(map(str, media_info.get("genre_ids", [])))
+        mID = f"{'mid' if media_type == 'movie' else 'tv'}{media_info.get('id')}"
+        
+        card = f'''
+        <div id="{mID}" class="{media_type} card" data-lists="Locale" data-genres="{genre_ids}">
+            <img src="{poster_url}" alt="{title}">
+            <div class="preview">
+                {"<h5>" if media_type == 'movie' else "<h4>"}{title}{"</h5>" if media_type == 'movie' else "</h4>"}
+                <h6>{date[:4]}</h6>
+                <p>{overview}</p>
+                <video controls><source src="file://{path}"></video>
+            </div>
+        </div>'''
+        cards_html += card
+
+    with open("local.html", "w", encoding="utf-8") as f:
+        f.write(html_template.format(cards_html=cards_html))
+    print("\nPagina local.html generata con successo!")
+
 if __name__ == "__main__":
     risultati = {}
     esclusioni = carica_esclusioni()
@@ -218,8 +279,12 @@ if __name__ == "__main__":
         else:
             print(f"Percorso non valido: {root_dir}")
 
+    if not risultati:
+        print("Nessun media trovato.")
+        sys.exit(0)
+
     while True:
-        menu_main = ["Salva JSON", "Rivedi associazioni", "Elimina film", "Ignora sempre", "Esci"]
+        menu_main = ["Salva e Genera HTML", "Rivedi associazioni", "Elimina film", "Ignora sempre", "Esci"]
         scelta = mostra_menu("GESTIONE LIBRERIA", menu_main)
         
         if scelta == 0: break
@@ -257,6 +322,11 @@ if __name__ == "__main__":
             except: pass
         dati_completi[path] = {"percorso_file": path, "info_ricerca": info, "info_dettagliate": dettagli}
 
+    # Salva JSON per compatibilità
     with open("libreria_media.json", "w", encoding="utf-8") as f:
         json.dump(dati_completi, f, indent=4, ensure_ascii=False, cls=TMDBEncoder)
-    print("\nLibreria aggiornata!")
+    
+    # Genera HTML statico
+    genera_html(dati_completi)
+    
+    print("\nLibreria aggiornata e local.html generata!")
