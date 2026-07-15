@@ -216,6 +216,15 @@ def genera_html(dati):
         # Escape backticks in path for JavaScript template literal
         js_path = path.replace("\\", "/").replace("`", "\\`")
 
+        # Controlla se l'oggetto genre_ids ha l'attributo _json
+        if hasattr(media_info.get('genre_ids'), '_json'):
+            # Estrai solo la lista e sovrascrivi il campo
+            media_info['genre_ids'] = media_info['genre_ids']._json
+        # Alternativa: controlla se ha _obj_list
+        elif hasattr(media_info.get('genre_ids'), '_obj_list'):
+            media_info['genre_ids'] = media_info['genre_ids']._obj_list
+
+        # Ora esegui il dump
         # Convert media_info dictionary to a JSON string
         media_info_json_str = json.dumps(media_info, ensure_ascii=False, cls=TMDBEncoder)
         
@@ -227,20 +236,11 @@ def genera_html(dati):
             cards_js_calls += f"        document.write(html_movie_preview('Locale', {media_info_json_str}, `file:///{js_path}`));\n"
 
     html_template = f"""<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="master.css">
-    <script src="Builders.js"></script>
-    <script type="text/javascript"></script>
-    <title>Home Cinema | Catalogo Locale</title>
-</head>
-<body>
-<script>
-    document.write(html_testa("Home Cinema | Catalogo Locale"));
+<script src="Builders.js"></script>
+<script type="text/javascript">
+    document.write(html_testa("Home Cinema | Catalogo"))
 </script>
-<main>
+<main id="lista">
     <script>
 {cards_js_calls}
         // Aggiornamento conteggio titoli
