@@ -63,6 +63,7 @@ function html_movie_preview(source_name, _json, play = false) {
         vote_average:
         vote_count:
     */
+    console.log('called html_movie_preview', source_name, _json, play)
     mID = 'mid' + _json.id
     target = document.getElementById(mID)
     if (target) {
@@ -102,6 +103,7 @@ function html_tv_preview(source_name, _json, play = false) {
         vote_average:
         vote_count:
     */
+    console.log('called html_tv_preview', source_name, _json, play)
     tvID = 'tv' + _json.id
     target = document.getElementById(tvID)
     if (target) {
