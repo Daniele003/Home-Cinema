@@ -313,11 +313,13 @@ if __name__ == "__main__":
             except: pass
         dati_completi[path] = {"percorso_file": path, "info_ricerca": info, "info_dettagliate": dettagli}
 
+    '''
     # Salva JSON per compatibilità
     with open("libreria_media.json", "w", encoding="utf-8") as f:
         json.dump(dati_completi, f, indent=4, ensure_ascii=False, cls=TMDBEncoder)
-    
+    '''
+
     # Genera HTML statico
     genera_html(dati_completi)
     
-    print("\nLibreria aggiornata e local.html generata!")
+    print("\n local.html generata!")
