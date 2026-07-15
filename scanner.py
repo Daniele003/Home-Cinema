@@ -205,9 +205,26 @@ def scan_recursive(directory, esclusioni, risultati):
                 risultati[full_path] = Trova(item, force_type='movie')
 
 def genera_html(dati):
-    # Converti i dati Python in una stringa JSON per incorporarli nel JavaScript
-    # Usiamo TMDBEncoder per gestire gli oggetti TMDb
-    json_data_str = json.dumps(dati, indent=4, ensure_ascii=False, cls=TMDBEncoder)
+    cards_js_calls = ""
+    for path, info in dati.items():
+        media_info = info.get("info_ricerca")
+        if not media_info:
+            continue
+
+        media_type = media_info.get("media_type")
+        
+        # Escape backticks in path for JavaScript template literal
+        js_path = path.replace("\\", "/").replace("`", "\\`")
+
+        # Convert media_info dictionary to a JSON string
+        media_info_json_str = json.dumps(media_info, ensure_ascii=False, cls=TMDBEncoder)
+        
+        # We pass the JSON string directly as an object literal in JS
+        # No need to parse it, just inject the JSON string which is valid JS object syntax
+        if media_type == 'tv':
+            cards_js_calls += f"        document.write(html_tv_preview('Locale', {media_info_json_str}, `file:///{js_path}`));\n"
+        else:
+            cards_js_calls += f"        document.write(html_movie_preview('Locale', {media_info_json_str}, `file:///{js_path}`));\n"
 
     html_template = f"""<!DOCTYPE html>
 <html lang="it">
@@ -225,40 +242,10 @@ def genera_html(dati):
 </script>
 <main>
     <script>
-        const localData = {json_data_str};
-        const lista = document.getElementsByTagName("main")[0];
-        let html_accumulator = "";
-        let currentCount = 0;
-
-        for (const path in localData) {
-            const info = localData[path];
-            const media_info = info.info_ricerca;
-            if (!media_info) continue;
-
-            const media_type = media_info.media_type;
-            
-            // In un ambiente reale, qui si sbloccherebbero i bottoni dei generi
-            // se fossero presenti e gestiti da Builders.js per local.html
-            if (media_info.genre_ids) {
-                media_info.genre_ids.forEach(genreId => {
-                    // let genreButton = document.getElementById(`g${genreId}`);
-                    // if (genreButton) { genreButton.classList.remove("hidden"); }
-                });
-            }
-
-            // Passiamo il percorso del file locale come terzo argomento 'play'
-            if (media_type === 'tv') {
-                html_accumulator += html_tv_preview("Locale", media_info, `file:///{path}`);
-            } else {
-                html_accumulator += html_movie_preview("Locale", media_info, `file:///{path}`);
-            }
-            currentCount++;
-        }
-        lista.innerHTML += html_accumulator;
-
+{cards_js_calls}
         // Aggiornamento conteggio titoli
         const risultatiEl = document.getElementById("#risultati");
-        if (risultatiEl) risultatiEl.innerText = currentCount + " titoli";
+        if (risultatiEl) risultatiEl.innerText = document.querySelectorAll('.card').length + " titoli";
     </script>
 </main>
 <footer></footer>
