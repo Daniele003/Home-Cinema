@@ -45,12 +45,14 @@ img {
 
 .card {
     min-width: 100px;
+    min-height: 100px;
     width: 25%;
     position: relative;
     display: inline-block;
     margin: 10px;
     padding: 10px;
     border-radius: 5px;
+    overflow: hidden;
 }
 
 .card > img{

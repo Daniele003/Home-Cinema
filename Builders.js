@@ -73,9 +73,9 @@ function html_movie_preview(source_name, _json, play = false) {
     } else {
         let video = ''
         if (play)
-            video = '<video controls><source src="' + play + '"></video>'
+            video = '<video loading="lazy" controls><source src="' + play + '"></video>'
         return '<div id="' + mID + '" class="movie card" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">'
-            + '<img src="https://image.tmdb.org/t/p/w342' + _json.poster_path + '" alt="...">'
+            + '<img src="https://image.tmdb.org/t/p/w342' + _json.poster_path + '" alt="' + _json.title + '">'
             + '<div  class="preview">'
             + '<h5>' + _json.original_title + '</h5> <h6>' + _json.release_date + '</h6>'
             + '<p> ' + _json.overview + ' </p>'
@@ -113,9 +113,9 @@ function html_tv_preview(source_name, _json, play = false) {
     } else {
         let video = ''
         if (play)
-            video = '<video controls><source src="' + play + '"></video>'
+            video = '<video loading="lazy" controls><source src="' + play + '"></video>'
         return '<div id="' + tvID + '" class="tv card" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">'
-            + '<img src="https://image.tmdb.org/t/p/w300' + _json.poster_path + '" alt="...">'
+            + '<img src="https://image.tmdb.org/t/p/w300' + _json.poster_path + '" alt="' + _json.name + '">'
             + '<div  class="preview">'
             + '<h4>' + _json.name + '</h4> <h6>' + _json.first_air_date + '</h6>'
             + '<p> ' + _json.overview + ' </p>'
