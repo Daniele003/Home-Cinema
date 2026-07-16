@@ -1,14 +1,116 @@
+/* ========================================
+   LIGHT THEME - COLORI CHIARI
+   ======================================== */
+
+:root {
+    --color-primary: #2c3e50;
+    --color-primary-light: #34495e;
+    --color-accent: #e74c3c;
+    --color-accent-light: #ec7063;
+    --color-bg: #f8f9fa;
+    --color-bg-secondary: #ecf0f1;
+    --color-text: #2c3e50;
+    --color-text-light: #7f8c8d;
+    --color-border: #bdc3c7;
+    --color-card-bg: #ffffff;
+}
+
 body {
-    background-color: beige;
-    color: hsl(23, 62%, 23%);
+    background-color: var(--color-bg);
+    color: var(--color-text);
 }
 
 header {
-    background-color: beige;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: var(--color-card-bg);
+    border-bottom: 2px solid var(--color-bg-secondary);
+}
+
+.navbar-container {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.search-filters-container {
+    background-color: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.btn-filters {
+    background-color: var(--color-accent);
+    color: white;
+    border: none;
+}
+
+.btn-filters:hover {
+    background-color: var(--color-accent-light);
+}
+
+.search-input {
+    background-color: var(--color-card-bg);
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+.search-input::placeholder {
+    color: var(--color-text-light);
+}
+
+.search-input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.results-count {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+}
+
+.filter {
+    color: var(--color-text);
+    border-color: var(--color-border);
+    background-color: transparent;
+}
+
+.filter:hover:not(.hidden) {
+    background-color: var(--color-accent);
+    color: white;
+    border-color: var(--color-accent);
+}
+
+.sort-label {
+    color: var(--color-text);
+}
+
+.sort-select {
+    background-color: var(--color-card-bg);
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+.sort-select:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
 }
 
 .card {
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
+    background-color: var(--color-card-bg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ========================================
+   ANIMAZIONI SPECIFICHE TEMA CHIARO
+   ======================================== */
+
+@media (prefers-color-scheme: light) {
+    .nav-link:hover {
+        color: var(--color-accent);
+    }
+    
+    .logo-link:hover .logo-image {
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+    }
 }

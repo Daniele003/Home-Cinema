@@ -1,0 +1,137 @@
+/* ========================================
+   DARK THEME - COLORI SCURI
+   ======================================== */
+
+:root {
+    --color-primary: #ecf0f1;
+    --color-primary-light: #bdc3c7;
+    --color-accent: #3498db;
+    --color-accent-light: #5dade2;
+    --color-bg: #1a1a1a;
+    --color-bg-secondary: #2d2d2d;
+    --color-text: #ecf0f1;
+    --color-text-light: #bdc3c7;
+    --color-border: #404040;
+    --color-card-bg: #242424;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+header {
+    background-color: var(--color-card-bg);
+    border-bottom: 2px solid var(--color-border);
+}
+
+.navbar-container {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.search-filters-container {
+    background-color: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.btn-filters {
+    background-color: var(--color-accent);
+    color: white;
+    border: none;
+}
+
+.btn-filters:hover {
+    background-color: var(--color-accent-light);
+}
+
+.search-input {
+    background-color: var(--color-card-bg);
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+.search-input::placeholder {
+    color: var(--color-text-light);
+}
+
+.search-input:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.results-count {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+}
+
+.filter {
+    color: var(--color-text);
+    border-color: var(--color-border);
+    background-color: transparent;
+}
+
+.filter:hover:not(.hidden) {
+    background-color: var(--color-accent);
+    color: white;
+    border-color: var(--color-accent);
+}
+
+.sort-label {
+    color: var(--color-text);
+}
+
+.sort-select {
+    background-color: var(--color-card-bg);
+    color: var(--color-text);
+    border-color: var(--color-border);
+}
+
+.sort-select:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.card {
+    background-color: var(--color-card-bg);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* ========================================
+   ANIMAZIONI SPECIFICHE TEMA SCURO
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+    .nav-link:hover {
+        color: var(--color-accent);
+    }
+    
+    .logo-link:hover .logo-image {
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+}
+
+/* ========================================
+   SCROLLBAR PERSONALIZZATA (TEMA SCURO)
+   ======================================== */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-accent);
+}

@@ -1,5 +1,5 @@
 function html_logo() {
-    return '<table><tr><td width="45%"><img src="logo.png" alt="[Mostra una ghianda]"></td><td><div>Home <br> Cinema</div></td></tr></table>'
+    return '<div class="logo-container"><img src="logo.png" alt="[Mostra una ghianda]" class="logo-image"><div class="logo-text">Home <br> Cinema</div></div>'
 }
 
 function change_theme() {
@@ -13,8 +13,6 @@ function change_theme() {
         new_child.href = 'LightTheme.css';
         document.head.replaceChild(new_child, document.querySelector('link[href="DarkTheme.css"]'));
     }
-
-
 }
 
 function html_testa(page_title) {
@@ -33,13 +31,42 @@ function html_testa(page_title) {
         + '</head>'
         + '<body>'
         + '<header>'
-        + '<nav>'
-        + '<table>' + '<tr id="fordice">' + '<td width="20%">' + '<a href="index.html">' + html_logo() + '</a></td> <td>' + '<ul>' + '<li>' + '<a href="home.html"> Catalogo online </a>' + '</li> <li>' + '<a href="local.html"> Disponibili in locale </a>' + '</li>' + '</ul>' + '</td>' + '<td>' + '<input type="checkbox" id="change theme" onchange="change_theme()"><label for="change theme"> &#x1F307 &#x1F306 </label>' + '</td>' + '</tr></table>'
-        + '<table><tr>' + '<td>' + '<button>Filtri Avanzati</button> <input type="search" placeholder="cerca...">' + '</td><td id="#risultati">0 titoli' + '<!-- mentre conta mostra un caricamento, solo quando ha finito di contare mostra il numero effettivo -->' + '</td>' + '</tr></table>'
-        + '<table><tr id="filtri avanzati liste"></tr></table>'
-        + '<table><tr id="filtri avanzati generi"></tr></table>'
-        + 'Ordina per: <input list="ordine"><datalist id="ordine"><option>Titolo</option> <option disabled>Durata</option> <option>Anno</option> <option>Voto</option></datalist>'
+        + '<nav class="navbar">'
+        + '<div class="navbar-container">'
+        + '<div class="navbar-brand">'
+        + '<a href="index.html" class="logo-link">' + html_logo() + '</a>'
+        + '</div>'
+        + '<div class="navbar-menu">'
+        + '<ul class="navbar-nav">'
+        + '<li class="nav-item"><a href="home.html" class="nav-link">Catalogo online</a></li>'
+        + '<li class="nav-item"><a href="local.html" class="nav-link">Disponibili in locale</a></li>'
+        + '</ul>'
+        + '</div>'
+        + '<div class="navbar-theme">'
+        + '<input type="checkbox" id="change-theme" class="theme-toggle" onchange="change_theme()">'
+        + '<label for="change-theme" class="theme-label">🌙 ☀️</label>'
+        + '</div>'
+        + '</div>'
         + '</nav>'
+        + '<div class="search-filters-container">'
+        + '<div class="search-bar">'
+        + '<button class="btn-filters" aria-label="Filtri Avanzati">⚙️ Filtri</button>'
+        + '<input type="search" class="search-input" placeholder="Cerca film o serie TV...">'
+        + '<span class="results-count" id="risultati">0 titoli</span>'
+        + '</div>'
+        + '<div class="filters-row" id="filtri-avanzati-liste"></div>'
+        + '<div class="filters-row" id="filtri-avanzati-generi"></div>'
+        + '<div class="sort-container">'
+        + '<label for="ordine" class="sort-label">Ordina per:</label>'
+        + '<input list="ordine" class="sort-select" id="sort-select">'
+        + '<datalist id="ordine">'
+        + '<option>Titolo</option>'
+        + '<option disabled>Durata</option>'
+        + '<option>Anno</option>'
+        + '<option>Voto</option>'
+        + '</datalist>'
+        + '</div>'
+        + '</div>'
         + '</header>'
     return s
 }
@@ -73,13 +100,18 @@ function html_movie_preview(source_name, _json, play = false) {
     } else {
         let video = ''
         if (play)
-            video = '<video loading="lazy" controls><source src="' + play + '"></video>'
+            video = '<div class="video-container"><video loading="lazy" controls><source src="' + play + '"></video></div>'
         return '<div id="' + mID + '" class="movie card" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">'
-            + '<img src="https://image.tmdb.org/t/p/w342' + _json.poster_path + '" alt="' + _json.title + '">'
-            + '<div  class="preview">'
-            + '<h5>' + _json.original_title + '</h5> <h6>' + _json.release_date + '</h6>'
-            + '<p> ' + _json.overview + ' </p>'
+            + '<div class="card-image-wrapper">'
+            + '<img src="https://image.tmdb.org/t/p/w342' + _json.poster_path + '" alt="' + _json.title + '" class="card-image">'
+            + '</div>'
+            + '<div class="preview">'
+            + '<div class="preview-content">'
+            + '<h5 class="preview-title">' + _json.original_title + '</h5>'
+            + '<p class="preview-date">' + _json.release_date + '</p>'
+            + '<p class="preview-overview">' + _json.overview + '</p>'
             + video
+            + '</div>'
             + '</div>'
             + '</div>'
     }
@@ -113,22 +145,27 @@ function html_tv_preview(source_name, _json, play = false) {
     } else {
         let video = ''
         if (play)
-            video = '<video loading="lazy" controls><source src="' + play + '"></video>'
+            video = '<div class="video-container"><video loading="lazy" controls><source src="' + play + '"></video></div>'
         return '<div id="' + tvID + '" class="tv card" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">'
-            + '<img src="https://image.tmdb.org/t/p/w300' + _json.poster_path + '" alt="' + _json.name + '">'
-            + '<div  class="preview">'
-            + '<h4>' + _json.name + '</h4> <h6>' + _json.first_air_date + '</h6>'
-            + '<p> ' + _json.overview + ' </p>'
+            + '<div class="card-image-wrapper">'
+            + '<img src="https://image.tmdb.org/t/p/w300' + _json.poster_path + '" alt="' + _json.name + '" class="card-image">'
+            + '</div>'
+            + '<div class="preview">'
+            + '<div class="preview-content">'
+            + '<h4 class="preview-title">' + _json.name + '</h4>'
+            + '<p class="preview-date">' + _json.first_air_date + '</p>'
+            + '<p class="preview-overview">' + _json.overview + '</p>'
             + video
+            + '</div>'
             + '</div>'
             + '</div>'
     }
 }
 
 function html_filtro_lista(nome) {
-    return '<button class="filter lists">' + nome + '</button>'
+    return '<button class="filter filter-list" title="Filtra per ' + nome + '">' + nome + '</button>'
 }
 
 function html_filtro_genere(id, nome) {
-    return '<button id="g' + id + '" class="filter genres hidden ">' + nome + '</button>'
+    return '<button id="g' + id + '" class="filter filter-genre hidden" title="Filtra per genere ' + nome + '">' + nome + '</button>'
 }
