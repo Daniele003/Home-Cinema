@@ -17,7 +17,7 @@
         Array("watchlist", "favorite", "rated").forEach(category => {
             links[`https://api.themoviedb.org/3/account/${accountId}/${category}/movies?language=it-IT`] = category
             links[`https://api.themoviedb.org/3/account/${accountId}/${category}/tv?language=it-IT`] = category
-            document.getElementById("filtri avanzati liste").innerHTML += html_filtro_lista(category)
+            document.getElementById("filtri-avanzati-liste").innerHTML += html_filtro_lista(category)
         });
 
         // carico le liste che ci sono nel profilo TMDB e inserisco bottoni di filtraggio di ciascuna lista
@@ -32,7 +32,7 @@
             console.log(data);
             data.results.forEach(lista => {
                 links[`https://api.themoviedb.org/4/list/${lista.id}-${lista.name}?language=it-IT`] = lista.name
-                document.getElementById("filtri avanzati liste").innerHTML += html_filtro_lista(lista.name)
+                document.getElementById("filtri-avanzati-liste").innerHTML += html_filtro_lista(lista.name)
             });
             console.log(links);
         }).catch(error => console.error('Errore durante il caricamento delle liste nel tuo profilo:', error));
@@ -48,7 +48,7 @@
         }).then(response => response.json()).then(data => {
             console.log(data);
             data.genres.forEach(genre => {
-                document.getElementById("filtri avanzati generi").innerHTML += html_filtro_genere(genre.id, genre.name)
+                document.getElementById("filtri-avanzati-generi").innerHTML += html_filtro_genere(genre.id, genre.name)
             });
         }).catch(error => console.error('Errore durante il caricamento degli generi:', error));
 
