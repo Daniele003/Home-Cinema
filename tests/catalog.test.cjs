@@ -9,7 +9,7 @@ const code = fs.readFileSync(base + 'catalog.js', 'utf8');
 const indexedDB = new IDBFactory();
 const html = `<!DOCTYPE html><html><head></head><body>
 <nav><ul class="navbar-nav"><li><a href="home.html">Online</a></li><li><a href="local.html">Locale</a></li></ul></nav><div id="fordice"><button class="dice-button"></button></div>
-<input type="search" class="search-input"><span id="#risultati"></span><button id="pin-visible"></button><span id="pinned-count"></span><button id="clear-pinned" disabled></button><span id="pin-status"></span><div id="filtri-avanzati-liste"></div><div id="filtri-avanzati-tipo"></div><div id="filtri-avanzati-generi"></div><input id="sort-select">
+<input type="search" class="search-input"><span id="#risultati"></span><button id="pin-visible"></button><span id="pinned-count"></span><button id="clear-pinned" disabled></button><span id="pin-status"></span><div id="filtri-avanzati-liste"></div><div id="filtri-avanzati-tipo"></div><div id="filtri-avanzati-generi"></div><select id="filter-combine"><option value="all">all</option><option value="any">any</option></select><select id="sort-select"><option value=""></option><option value="Titolo">Titolo</option><option value="Durata">Durata</option><option value="Anno">Anno</option><option value="Voto">Voto</option></select>
 <main id="catalog-online"></main><main id="catalog-local"></main></body></html>`;
 const a = { id: 1, title:'Àlpha', original_title:'Alpha', genre_ids:[28], vote_average:7.5, vote_count:100, release_date:'2020-01-01', overview:'one', media_type:'movie' };
 const b = { id: 2, title:'Beta', original_title:'Beta', genre_ids:[35], vote_average:9, vote_count:50, release_date:'1999-04-01', overview:'two', media_type:'movie' };
@@ -92,6 +92,11 @@ function clickNav(w, path) { w.document.querySelector('.navbar-nav a[href="'+pat
     button(w,'.filter-list','Lista con spazi'); await delay(60); assert.equal(visible(w).length,2,'OR between lists');
     button(w,'.filter-genre','Sci-Fi & Fantasy'); await delay(60); assert.equal(visible(w).length,1,'AND between list and genre');
     assert.equal(visible(w)[0].id,'online-tv3');
+    const combine=w.document.querySelector('#filter-combine'); combine.value='any'; combine.dispatchEvent(new w.Event('change',{bubbles:true})); await delay(60);
+    assert.deepEqual(new Set(visible(w).map(card=>card.id)),new Set(['online-mid1','online-tv3']),'OR between active filter categories');
+    assert.equal(JSON.parse(w.localStorage.getItem('homecinema:catalog-controls:v1')).online.combine,'any','filter combination is persisted');
+    combine.value='all'; combine.dispatchEvent(new w.Event('change',{bubbles:true})); await delay(60);
+    assert.equal(visible(w).length,1,'AND mode can be restored');
     button(w,'.filter-genre','Sci-Fi & Fantasy'); button(w,'.filter-list','favorite'); button(w,'.filter-list','Lista con spazi'); await delay(60);
     input(w,'#sort-select','Anno'); await delay(60); let ordered=[...visible(w)].sort((x,y)=>Number(x.style.order)-Number(y.style.order)); assert.deepEqual(ordered.map(e=>e.id),['online-tv3','online-mid1','online-mid2']);
     input(w,'#sort-select','Voto'); await delay(60); ordered=[...visible(w)].sort((x,y)=>Number(x.style.order)-Number(y.style.order)); assert.deepEqual(ordered.map(e=>e.id),['online-mid2','online-mid1','online-tv3']);

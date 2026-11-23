@@ -16,6 +16,7 @@
     const VALID_SORTS = ['Titolo', 'Durata', 'Anno', 'Voto'];
     const search = document.querySelector('.search-input');
     const sortInput = document.getElementById('sort-select');
+    const filterCombineInput = document.getElementById('filter-combine');
     const count = document.getElementById('#risultati');
     const listRow = document.getElementById('filtri-avanzati-liste');
     const mediaTypeRow = document.getElementById('filtri-avanzati-tipo');
@@ -84,10 +85,11 @@
                 lists: new Set(Array.isArray(saved.lists) ? saved.lists.map(String) : []),
                 genres: new Set(Array.isArray(saved.genres) ? saved.genres.map(String) : []),
                 mediaType: saved.mediaType === 'movie' || saved.mediaType === 'tv' ? saved.mediaType : '',
-                sort: VALID_SORTS.includes(saved.sort) ? saved.sort : ''
+                sort: VALID_SORTS.includes(saved.sort) ? saved.sort : '',
+                combine: saved.combine === 'any' ? 'any' : 'all'
             };
         } catch (_) {
-            return { query: '', lists: new Set(), genres: new Set(), mediaType: '', sort: '' };
+            return { query: '', lists: new Set(), genres: new Set(), mediaType: '', sort: '', combine: 'all' };
         }
     }
 
@@ -96,7 +98,8 @@
         for (const [name, view] of Object.entries(views)) {
             state[name] = {
                 query: view.filters.query, lists: [...view.filters.lists],
-                genres: [...view.filters.genres], mediaType: view.filters.mediaType, sort: view.filters.sort
+                genres: [...view.filters.genres], mediaType: view.filters.mediaType, sort: view.filters.sort,
+                combine: view.filters.combine
             };
         }
         try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (_) { /* storage facoltativo */ }
@@ -230,12 +233,14 @@
         if (pinnedMovies.has(itemKey(record.item))) return true;
         const query = normalize(view.filters.query.trim());
         const titles = [record.item.title, record.item.original_title, record.item.name, record.item.original_name].map(normalize);
-        if (query && !titles.some(title => title.includes(query))) return false;
-        if (view.filters.lists.size && ![...view.filters.lists].some(name => record.sources.has(name))) return false;
+        const rules = [];
+        if (query) rules.push(titles.some(title => title.includes(query)));
+        if (view.filters.lists.size) rules.push([...view.filters.lists].some(name => record.sources.has(name)));
         const genres = itemGenres(record.item);
-        if (view.filters.genres.size && ![...view.filters.genres].some(id => genres.includes(id))) return false;
-        if (view.filters.mediaType && itemType(record.item) !== view.filters.mediaType) return false;
-        return true;
+        if (view.filters.genres.size) rules.push([...view.filters.genres].some(id => genres.includes(id)));
+        if (view.filters.mediaType) rules.push(itemType(record.item) === view.filters.mediaType);
+        if (!rules.length) return true;
+        return view.filters.combine === 'any' ? rules.some(Boolean) : rules.every(Boolean);
     }
 
     function togglePinned(record) {
@@ -500,7 +505,6 @@
     function renderView(view) {
         ensurePinnedRecords(view);
         renderFilters(view);
-        const query = normalize(view.filters.query.trim());
         const ordered = [...view.records.values()];
         ordered.sort((a, b) => {
             const aPinned = pinnedMovies.has(itemKey(a.item)), bPinned = pinnedMovies.has(itemKey(b.item));
@@ -513,13 +517,8 @@
             record.pinned = pinnedMovies.has(itemKey(record.item));
             updatePinButton(record);
             const item = record.item;
-            const titles = [item.title, item.original_title, item.name, item.original_name].map(normalize);
-            const matchesTitle = !query || titles.some(title => title.includes(query));
-            const matchesList = !view.filters.lists.size || [...view.filters.lists].some(name => record.sources.has(name));
             const genres = itemGenres(item);
-            const matchesGenre = !view.filters.genres.size || [...view.filters.genres].some(id => genres.includes(id));
-            const matchesMediaType = !view.filters.mediaType || itemType(item) === view.filters.mediaType;
-            const show = record.pinned || (matchesTitle && matchesList && matchesGenre && matchesMediaType);
+            const show = matchesCurrentFilters(view, record);
             record.node.style.display = show ? '' : 'none';
             record.node.style.order = String(index);
             record.node.dataset.lists = JSON.stringify([...record.sources]);
@@ -546,6 +545,7 @@
         const view = views[active];
         search.value = view.filters.query;
         sortInput.value = view.filters.sort;
+        filterCombineInput.value = view.filters.combine;
         if (push) {
             try { history.pushState({ catalog: name }, '', name === 'online' ? 'home.html' : 'local.html'); }
             catch (_) { /* Il cambio vista funziona anche se il browser blocca History API. */ }
@@ -564,6 +564,11 @@
 
     search.addEventListener('input', () => {
         views[active].filters.query = search.value;
+        saveState();
+        scheduleRender();
+    });
+    filterCombineInput.addEventListener('change', () => {
+        views[active].filters.combine = filterCombineInput.value === 'any' ? 'any' : 'all';
         saveState();
         scheduleRender();
     });
