@@ -2,30 +2,14 @@ function html_logo() {
     return '<div class="logo-container"><img src="logo.png" alt="[Mostra una ghianda]" class="logo-image"><div class="logo-text">Home <br> Cinema</div></div>';
 }
 
-function change_theme() {
-    const new_child = document.createElement('link');
-    new_child.rel = 'stylesheet';
-    const target = document.querySelector('link[href="LightTheme.css"]');
-    if (target) {
-        new_child.href = 'DarkTheme.css';
-        document.head.replaceChild(new_child, target);
-    } else {
-        new_child.href = 'LightTheme.css';
-        document.head.replaceChild(new_child, document.querySelector('link[href="DarkTheme.css"]'));
-    }
-}
-
 function html_testa(page_title) {
     let s = '<html lang="it">'
         + '<head>'
         + '<meta charset="UTF-8">'
         + '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
-        + '<link rel="stylesheet" href="master.css">';
-    if ((new Date()).getHours() >= 22 || (new Date()).getHours() <= 6) {
-        s += '<link rel="stylesheet" href="DarkTheme.css">';
-    } else {
-        s += '<link rel="stylesheet" href="LightTheme.css">';
-    }
+        + '<link rel="stylesheet" href="master.css">'
+        + '<link rel="stylesheet" href="LightTheme.css">'
+        + '<link rel="stylesheet" href="DarkTheme.css" media="(prefers-color-scheme: dark)">';
     s += '<title>' + escape_html(page_title) + '</title>'
         + '</head>'
         + '<body>'
@@ -40,10 +24,6 @@ function html_testa(page_title) {
         + '<li class="nav-item"><a href="home.html" class="nav-link">Catalogo online</a></li>'
         + '<li class="nav-item"><a href="local.html" class="nav-link">Disponibili in locale</a></li>'
         + '</ul>'
-        + '</div>'
-        + '<div class="navbar-theme">'
-        + '<input type="checkbox" id="change-theme" class="theme-toggle" onchange="change_theme()">'
-        + '<label for="change-theme" class="theme-label">🌙</label>'
         + '</div>'
         + '<div id="fordice"><button type="button" class="dice-button" aria-label="Estrai un titolo fissato a caso" title="Estrai un altro titolo fissato"><span class="dice-face" aria-hidden="true">' + '<i></i>'.repeat(9) + '</span></button></div>'
         + '</div>'
@@ -74,7 +54,17 @@ function html_testa(page_title) {
         + '</datalist>'
         + '</div>'
         + '</div>'
-        + '</header>';
+        + '</header>'
+        + '<div id="dice-spotlight" class="dice-spotlight" hidden role="dialog" aria-modal="true" aria-labelledby="dice-spotlight-title">'
+        + '<div class="dice-spotlight-backdrop" data-spotlight-close></div>'
+        + '<section class="dice-spotlight-panel" tabindex="-1">'
+        + '<button type="button" class="dice-spotlight-close" aria-label="Chiudi il titolo estratto">×</button>'
+        + '<div class="dice-spotlight-poster-wrap"><img id="dice-spotlight-poster" class="dice-spotlight-poster" alt=""></div>'
+        + '<div class="dice-spotlight-copy"><p class="dice-spotlight-eyebrow">🎲 Il dado ha scelto</p>'
+        + '<h2 id="dice-spotlight-title"></h2><p id="dice-spotlight-meta" class="dice-spotlight-meta"></p>'
+        + '<p id="dice-spotlight-overview" class="dice-spotlight-overview"></p>'
+        + '<button type="button" class="dice-spotlight-again">Estrai un altro titolo</button></div>'
+        + '</section></div>';
     return s;
 }
 

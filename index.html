@@ -7,6 +7,7 @@
     <meta name="description" content="Home Cinema - Il tuo catalogo di film e serie TV personale">
     <link rel="stylesheet" href="master.css">
     <link rel="stylesheet" href="LightTheme.css">
+    <link rel="stylesheet" href="DarkTheme.css" media="(prefers-color-scheme: dark)">
     <title>Home Cinema | Benvenuto</title>
     <script type="speculationrules">
         {
@@ -252,25 +253,92 @@
             .splash-container, .splash-logo img, .dialog-line, .loading-indicator { animation: none !important; }
         }
     </style>
+    <style>
+        html { scroll-behavior: smooth; }
+        body {
+            display: block;
+            min-height: 100vh;
+            padding: 0;
+            background:
+                radial-gradient(ellipse at 50% 0%, color-mix(in srgb,var(--color-accent) 10%,transparent), transparent 45%),
+                linear-gradient(145deg,var(--color-bg),var(--color-bg-secondary));
+        }
+        .splash-container {
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100svh;
+            padding: clamp(1.2rem,4vw,3rem);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+            backdrop-filter: none;
+        }
+        .splash-dialog { width: min(100%,760px); margin: auto 0; }
+        .scroll-cue {
+            margin: auto 0 0;
+            padding-top: 1.5rem;
+            color: var(--color-text-light);
+            font-size: .82rem;
+            letter-spacing: .04em;
+            text-decoration: none;
+            animation: cue-nudge 1.8s ease-in-out infinite;
+        }
+        .splash-finale {
+            min-height: 90vh;
+            min-height: 90svh;
+            display: grid;
+            place-items: center;
+            padding: 2rem 1rem;
+            border-top: 1px solid color-mix(in srgb,var(--color-accent) 24%,var(--color-border));
+            background: radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--color-accent) 10%,transparent),transparent 46%);
+        }
+        .finale-content { display: grid; justify-items: center; gap: 1.2rem; }
+        .splash-finale .splash-logo { margin: 0; }
+        .splash-finale .splash-logo img {
+            width: 160px;
+            max-width: 42vw;
+            border-radius: 50%;
+            background: var(--color-card-bg);
+            box-shadow: 0 12px 30px rgba(70,47,19,.18), 0 0 0 7px color-mix(in srgb,var(--color-accent) 9%,transparent);
+            animation: seed-arrive .7s cubic-bezier(.2,.75,.25,1) both;
+        }
+        .finale-caption { margin: 0; color: var(--color-text-light); font-family: Georgia,'Times New Roman',serif; font-size: 1.1rem; }
+        .enter-catalog {
+            min-height: 48px;
+            padding: .75rem 1.25rem;
+            border: 1px solid color-mix(in srgb,var(--color-accent) 42%,var(--color-border));
+            border-radius: 999px;
+            background: var(--color-accent);
+            color: #fffdfa;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 6px 18px color-mix(in srgb,var(--color-accent) 22%,transparent);
+            transition: transform .2s, box-shadow .2s, background .2s;
+        }
+        .enter-catalog:hover { transform: translateY(-2px); box-shadow: 0 10px 24px color-mix(in srgb,var(--color-accent) 28%,transparent); }
+        @keyframes cue-nudge { 0%,100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+        @keyframes seed-arrive { from { opacity: 0; transform: translateY(16px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @media (max-width: 600px) {
+            .splash-container { padding: 1rem .85rem 1.3rem; }
+            .splash-finale { min-height: 82vh; min-height: 82svh; }
+            .splash-finale .splash-logo img { width: 148px; max-width: 42vw; }
+            .finale-content { gap: 1rem; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            .scroll-cue, .splash-finale .splash-logo img, .enter-catalog { animation: none !important; transition: none !important; }
+        }
+    </style>
 </head>
 
 <body>
     <div class="splash-container">
-        <p class="splash-kicker">Una storia da ricordare</p>
-        <h1 class="splash-heading">La ghianda e il viaggio</h1>
-        <div class="splash-logo">
-            <script>
-                // Estrai solo l'immagine dal logo
-                const logoHTML = html_logo();
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = logoHTML;
-                const img = tempDiv.querySelector('img');
-                if (img) {
-                    document.write(img.outerHTML);
-                }
-            </script>
-        </div>
-
         <div class="splash-dialog">
             <div class="dialog-line dialog-bilbo"><span class="dialog-speaker">Bilbo</span>L'ho raccolta nel giardino di Beorn.</div>
             <div class="dialog-line dialog-thorin"><span class="dialog-speaker">Thorin</span>E l'hai portata fino a qui...</div>
@@ -279,21 +347,21 @@
             <div class="dialog-line dialog-bilbo"><span class="dialog-speaker">Bilbo</span>Beh, un giorno crescerà. E ogni volta che lo guarderò ricorderò. Ricorderò quello che è successo, il brutto, il bello.</div>
         </div>
 
-        <div class="loading-indicator">
-            ⏳ Caricamento in corso...
-        </div>
+        <a class="scroll-cue" href="#finale">Scorri per la ghianda e continua ↓</a>
     </div>
 
+    <section class="splash-finale" id="finale" aria-label="Fine del dialogo">
+        <div class="finale-content">
+            <div class="splash-logo"><img src="logo.png" alt="Ghianda dorata" loading="lazy"></div>
+            <p class="finale-caption">Un ricordo da portare a casa.</p>
+            <button type="button" class="enter-catalog" onclick="entra_nel_catalogo()">Entra nel catalogo</button>
+        </div>
+    </section>
+
     <script>
-        // Simulazione di un caricamento dei dati con un timeout
-        setTimeout(function () {
-            // Dopo 3 secondi, reindirizza alla pagina home.html se è online, oppure alla pagina local.html se è offline
-            if (navigator.onLine) {
-                location.href = "home.html";
-            } else {
-                location.href = "local.html";
-            }
-        }, 3000);
+        function entra_nel_catalogo() {
+            location.href = navigator.onLine ? "home.html" : "local.html";
+        }
     </script>
 </body>
 

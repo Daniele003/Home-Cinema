@@ -922,3 +922,109 @@ header { box-shadow: 0 4px 16px rgba(20,30,40,.08); }
 @media (prefers-reduced-motion: reduce) {
     #fordice .dice-button, #fordice .dice-face { transition: none !important; }
 }
+
+/* Il titolo estratto dal dado resta riconoscibile anche dopo il breve effetto iniziale. */
+.card.card-dice-picked {
+    z-index: 4;
+    outline: 3px solid #f3c969;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 7px rgba(243, 201, 105, .28), 0 18px 40px rgba(15, 25, 35, .28);
+    transform: translateY(-4px) scale(1.025);
+    animation: dice-glow 1.15s ease-in-out 3;
+}
+
+.card.card-dice-picked::after {
+    content: "🎲 SCELTO DAL DADO";
+    position: absolute;
+    z-index: 4;
+    top: .7rem;
+    left: .7rem;
+    max-width: calc(100% - 1.4rem);
+    padding: .42rem .62rem;
+    border: 1px solid rgba(255, 255, 255, .55);
+    border-radius: 999px;
+    background: #f3c969;
+    color: #292116;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .3);
+    font-size: .68rem;
+    font-weight: 850;
+    letter-spacing: .045em;
+    line-height: 1.15;
+    text-shadow: none;
+    pointer-events: none;
+}
+
+@keyframes dice-glow {
+    0%, 100% { box-shadow: 0 0 0 7px rgba(243, 201, 105, .28), 0 18px 40px rgba(15, 25, 35, .28); }
+    50% { box-shadow: 0 0 0 11px rgba(243, 201, 105, .48), 0 0 30px 12px rgba(243, 201, 105, .28), 0 20px 44px rgba(15, 25, 35, .3); }
+}
+
+@media (max-width: 600px) {
+    .card.card-dice-picked { transform: translateY(-2px) scale(1.015); }
+    .card.card-dice-picked::after { top: .55rem; left: .55rem; font-size: .62rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .card.card-dice-picked { animation: none !important; }
+}
+
+/* Spotlight del titolo estratto: porta il risultato sopra il catalogo. */
+.dice-spotlight[hidden] { display: none !important; }
+.dice-spotlight {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 4vw, 3rem);
+}
+.dice-spotlight-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(9, 13, 16, .78);
+    backdrop-filter: blur(10px);
+    animation: spotlight-fade-in .22s ease-out both;
+}
+.dice-spotlight-panel {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(200px, 34%) minmax(0, 1fr);
+    width: min(900px, 100%);
+    max-height: min(680px, calc(100vh - 3rem));
+    overflow: auto;
+    border: 1px solid rgba(243, 201, 105, .72);
+    border-radius: 24px;
+    background: var(--color-card-bg);
+    color: var(--color-text);
+    box-shadow: 0 28px 100px rgba(0, 0, 0, .52), 0 0 0 7px rgba(243, 201, 105, .18);
+    animation: spotlight-rise-in .32s cubic-bezier(.2,.8,.2,1) both;
+}
+.dice-spotlight-poster-wrap { min-height: 330px; background: var(--color-bg-secondary); }
+.dice-spotlight-poster { display: block; width: 100%; height: 100%; min-height: 330px; object-fit: cover; }
+.dice-spotlight-poster[hidden] { display: none; }
+.dice-spotlight-copy { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(1.5rem, 4vw, 3rem); }
+.dice-spotlight-eyebrow { margin: 0 0 .8rem; color: var(--color-accent); font-size: .88rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.dice-spotlight-copy h2 { margin: 0 2rem .8rem 0; font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.08; }
+.dice-spotlight-meta { margin: 0 0 1.2rem; color: var(--color-text-light); font-weight: 650; }
+.dice-spotlight-overview { display: -webkit-box; overflow: hidden; margin: 0 0 1.6rem; line-height: 1.65; -webkit-box-orient: vertical; -webkit-line-clamp: 6; line-clamp: 6; }
+.dice-spotlight-close { position: absolute; top: .8rem; right: .8rem; z-index: 2; display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--color-border); border-radius: 50%; background: var(--color-card-bg); color: var(--color-text); font-size: 1.7rem; line-height: 1; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,.16); }
+.dice-spotlight-again { min-height: 46px; padding: .7rem 1rem; border: 0; border-radius: 12px; background: #f3c969; color: #292116; font: inherit; font-weight: 800; cursor: pointer; box-shadow: 0 5px 16px rgba(243, 201, 105, .28); }
+.dice-spotlight-close:hover, .dice-spotlight-again:hover { transform: translateY(-2px); }
+body.dice-spotlight-open { overflow: hidden; }
+@keyframes spotlight-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes spotlight-rise-in { from { opacity: 0; transform: translateY(16px) scale(.975); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (max-width: 600px) {
+    .dice-spotlight { padding: .75rem; }
+    .dice-spotlight-panel { grid-template-columns: minmax(0, 1fr); width: min(420px, 100%); max-height: calc(100vh - 1.5rem); border-radius: 18px; }
+    .dice-spotlight-poster-wrap { max-height: 38vh; min-height: 180px; }
+    .dice-spotlight-poster { max-height: 38vh; min-height: 180px; object-position: center 30%; }
+    .dice-spotlight-copy { padding: 1.2rem 1.25rem 1.35rem; }
+    .dice-spotlight-copy h2 { margin-right: 2.2rem; font-size: 1.7rem; }
+    .dice-spotlight-overview { margin-bottom: 1rem; -webkit-line-clamp: 4; line-clamp: 4; }
+    .dice-spotlight-close { top: .55rem; right: .55rem; }
+    .dice-spotlight-again { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .dice-spotlight-backdrop, .dice-spotlight-panel { animation: none !important; }
+}

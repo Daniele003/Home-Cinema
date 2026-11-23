@@ -36,6 +36,36 @@
     const pinStatus = document.getElementById('pin-status');
     const pinnedCount = document.getElementById('pinned-count');
     const clearPinnedButton = document.getElementById('clear-pinned');
+    const diceSpotlight = document.getElementById('dice-spotlight');
+
+    function closeDiceSpotlight(restoreFocus = true) {
+        if (!diceSpotlight || diceSpotlight.hidden) return;
+        diceSpotlight.hidden = true;
+        document.body.classList.remove('dice-spotlight-open');
+        if (restoreFocus) document.querySelector('.dice-button')?.focus();
+    }
+
+    function showDiceSpotlight(item) {
+        if (!diceSpotlight) return;
+        const title = itemTitle(item);
+        const type = itemType(item) === 'tv' ? 'Serie TV' : 'Film';
+        const date = itemType(item) === 'tv' ? item.first_air_date : item.release_date;
+        const year = date ? String(date).slice(0, 4) : '';
+        const runtime = itemDuration(item);
+        const rating = Number(item.vote_average);
+        const meta = [type, year, runtime ? (itemType(item) === 'tv' ? runtime + ' min/episodio' : runtime + ' min') : '',
+            Number.isFinite(rating) && rating > 0 ? 'TMDB ' + rating.toFixed(1) + '/10' : ''].filter(Boolean).join(' · ');
+        const poster = document.getElementById('dice-spotlight-poster');
+        poster.src = item.poster_path ? 'https://image.tmdb.org/t/p/w500' + item.poster_path : '';
+        poster.alt = title ? 'Locandina di ' + title : '';
+        poster.hidden = !item.poster_path;
+        document.getElementById('dice-spotlight-title').textContent = title || 'Titolo senza nome';
+        document.getElementById('dice-spotlight-meta').textContent = meta;
+        document.getElementById('dice-spotlight-overview').textContent = item.overview || 'Nessuna descrizione disponibile.';
+        diceSpotlight.hidden = false;
+        document.body.classList.add('dice-spotlight-open');
+        diceSpotlight.querySelector('.dice-spotlight-close').focus();
+    }
 
     function createView(name) {
         return {
@@ -303,6 +333,7 @@
                 card.classList.add('card-dice-picked');
                 if (typeof card.scrollIntoView === 'function') card.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
+            showDiceSpotlight(chosen.item);
             if (pinStatus) pinStatus.textContent = '🎲 ' + itemTitle(chosen.item);
         });
     }
@@ -566,6 +597,22 @@
     document.getElementById('pin-visible').addEventListener('click', pinVisibleFilms);
     clearPinnedButton.addEventListener('click', clearPinnedTitles);
     document.querySelector('.dice-button').addEventListener('click', pickPinnedAtRandom);
+    document.querySelector('.dice-spotlight-close')?.addEventListener('click', () => closeDiceSpotlight());
+    document.querySelector('.dice-spotlight-again')?.addEventListener('click', () => {
+        closeDiceSpotlight(false);
+        pickPinnedAtRandom();
+    });
+    document.querySelector('.dice-spotlight-backdrop')?.addEventListener('click', () => closeDiceSpotlight());
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeDiceSpotlight();
+        if (event.key === 'Tab' && diceSpotlight && !diceSpotlight.hidden) {
+            const controls = [...diceSpotlight.querySelectorAll('button:not([disabled])')];
+            if (!controls.length) return;
+            const first = controls[0], last = controls[controls.length - 1];
+            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+        }
+    });
     for (const view of Object.values(views)) {
         view.main.addEventListener('click', event => {
             const button = event.target.closest('.pin-card-button');
