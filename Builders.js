@@ -45,14 +45,19 @@ function html_testa(page_title) {
         + '<input type="checkbox" id="change-theme" class="theme-toggle" onchange="change_theme()">'
         + '<label for="change-theme" class="theme-label">🌙</label>'
         + '</div>'
-        + '<div id="fordice"></div>'
+        + '<div id="fordice"><button type="button" class="dice-button" aria-label="Estrai un film fissato a caso" title="Estrai un altro film fissato">🎲</button></div>'
         + '</div>'
         + '</nav>'
         + '<div class="search-filters-container">'
         + '<div class="search-bar">'
-        + '<button class="btn-filters" aria-label="Filtri Avanzati" onclick="document.querySelectorAll(\'.filters-row\').forEach(el => el.classList.toggle(\'hidden\'));">⚙️ Filtri</button>'
+        + '<button class="btn-filters" aria-label="Filtri Avanzati" onclick="document.querySelectorAll(\'.filters-row\').forEach(el => el.classList.toggle(\'hidden\'))">⚙️ Filtri</button>'
         + '<input type="search" class="search-input" placeholder="Cerca film o serie TV...">'
         + '<span class="results-count" id="#risultati" aria-live="polite">0 titoli</span>'
+        + '</div>'
+        + '<div class="pin-controls">'
+        + '<button type="button" id="pin-visible" class="pin-visible-button">📌 Fissa tutti i film visualizzati</button>'
+        + '<span id="pinned-count" class="pinned-count" aria-live="polite">0 film fissati</span>'
+        + '<span id="pin-status" class="pin-status" aria-live="polite"></span>'
         + '</div>'
         + '<div class="filters-row" id="filtri-avanzati-liste"></div>'
         + '<div class="filters-row" id="filtri-avanzati-generi"></div>'
@@ -78,7 +83,6 @@ function escape_html(value) {
 }
 
 // I builder conservano le classi e la struttura delle card originali.
-// La deduplicazione e le liste di appartenenza sono gestite dal catalogo.
 function html_movie_preview(source_name, item, play = false, id_prefix = '') {
     return html_media_preview('movie', source_name, item, play, id_prefix);
 }
@@ -96,17 +100,45 @@ function html_media_preview(type, source_name, item, play, id_prefix) {
     const poster = item.poster_path ? 'https://image.tmdb.org/t/p/' + (is_tv ? 'w300' : 'w342') + item.poster_path : '';
     const video = play ? '<div class="video-container"><video loading="lazy" controls><source src="' + escape_html(play) + '"></video></div>' : '';
     const heading = is_tv ? 'h4' : 'h5';
-    return '<div id="' + escape_html(id_prefix + (is_tv ? 'tv' : 'mid') + item.id) + '" class="' + (is_tv ? 'tv' : 'movie') + ' card" data-lists="' + escape_html(source_name) + '" data-genres="' + escape_html(genres.join(' ')) + '">'
+    const sources = [...new Set((Array.isArray(source_name) ? source_name : [source_name]).filter(Boolean).map(String))];
+    const listBadges = sources.map(name => {
+        const color = listColor(name);
+        const emoji = ({ watchlist: '⏳', favorite: '❤️', rated: '⭐', Locale: '🎞️' })[name] || '🗂️';
+        return '<span class="preview-list-badge" style="--list-color:' + color + '" title="Lista: ' + escape_html(name) + '">' + emoji + ' ' + escape_html(name) + '</span>';
+    }).join('');
+    const rawDuration = Number(item.runtime) || (Array.isArray(item.episode_run_time) ? Number(item.episode_run_time.find(n => Number(n) > 0)) : 0);
+    const runtime = rawDuration > 0 ? '<span class="preview-runtime">' + (is_tv ? 'Episodio: ' : '') + format_runtime(rawDuration) + '</span>' : '<span class="preview-runtime" hidden></span>';
+    const rating = Number(item.rating);
+    const ownRating = Number.isFinite(rating) && item.rating !== '' && item.rating != null
+        ? '<span class="preview-user-rating">Il tuo voto: ' + escape_html(rating.toFixed(1)) + '/10</span>' : '';
+    return '<div id="' + escape_html(id_prefix + (is_tv ? 'tv' : 'mid') + item.id) + '" class="' + (is_tv ? 'tv' : 'movie') + ' card" data-item-key="' + escape_html((is_tv ? 'tv:' : 'movie:') + item.id) + '" data-lists="' + escape_html(JSON.stringify(sources)) + '" data-genres="' + escape_html(genres.join(' ')) + '">'
+        + '<div class="card-actions"><button type="button" class="pin-card-button" aria-pressed="false" aria-label="Fissa questo film" title="Fissa questo film">📍</button></div>'
         + '<div class="card-image-wrapper">'
         + '<img' + (poster ? ' src="' + escape_html(poster) + '"' : '') + ' alt="' + escape_html(image_title || '') + '" class="card-image" loading="lazy">'
         + '</div>'
         + '<div class="preview">'
         + '<div class="preview-content">'
+        + '<div class="preview-list-badges">' + listBadges + '</div>'
         + '<' + heading + ' class="preview-title">' + escape_html(title || '') + '</' + heading + '>'
         + '<p class="preview-date">' + escape_html(date || '') + '</p>'
+        + '<div class="preview-meta">' + runtime + ownRating + '</div>'
         + '<p class="preview-overview">' + escape_html(item.overview || '') + '</p>'
         + video
         + '</div></div></div>';
+}
+
+function listColor(name) {
+    const palette = ['#176b87', '#8b4d75', '#596b32', '#95542d', '#554b91', '#34745b', '#8a3e4a', '#4b638d'];
+    let hash = 0;
+    for (const character of String(name)) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
+    return palette[hash % palette.length];
+}
+
+function format_runtime(minutes) {
+    const value = Math.round(Number(minutes));
+    if (!Number.isFinite(value) || value <= 0) return '';
+    const hours = Math.floor(value / 60), rest = value % 60;
+    return hours ? (rest ? hours + ' h ' + rest + ' min' : hours + ' h') : value + ' min';
 }
 
 function html_filtro_lista(nome) {

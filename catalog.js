@@ -12,6 +12,7 @@
     }));
     const STATE_KEY = 'homecinema:catalog-controls:v1';
     const CACHE_KEY = 'catalog-v1';
+    const PINNED_KEY = 'homecinema:pinned-movies:v1';
     const VALID_SORTS = ['Titolo', 'Durata', 'Anno', 'Voto'];
     const search = document.querySelector('.search-input');
     const sortInput = document.getElementById('sort-select');
@@ -29,6 +30,10 @@
     let activeRequests = 0;
     const requestWaiters = [];
     const durations = new Map();
+    const durationRequests = new Map();
+    const pinnedMovies = readPinnedMovies();
+    const pinStatus = document.getElementById('pin-status');
+    const pinnedCount = document.getElementById('pinned-count');
 
     function createView(name) {
         return {
@@ -123,8 +128,159 @@
         return Number(value) > 0 ? Number(value) : null;
     }
 
-    function makeRecord(item, sources, play = '') {
-        return { item, sources: new Set(sources), play, node: null };
+    function readPinnedMovies() {
+        const pinned = new Map();
+        try {
+            const saved = JSON.parse(localStorage.getItem(PINNED_KEY) || '[]');
+            if (!Array.isArray(saved)) return pinned;
+            for (const entry of saved) {
+                if (!entry || !entry.item || entry.item.id == null || itemType(entry.item) !== 'movie') continue;
+                pinned.set(itemKey(entry.item), {
+                    item: entry.item,
+                    sources: Array.isArray(entry.sources) ? entry.sources.map(String) : []
+                });
+            }
+        } catch (_) { /* Lo storage locale è facoltativo. */ }
+        return pinned;
+    }
+
+    function savePinnedMovies() {
+        try {
+            localStorage.setItem(PINNED_KEY, JSON.stringify([...pinnedMovies.values()]));
+        } catch (_) {
+            if (pinStatus) pinStatus.textContent = 'Impossibile salvare i film fissati in questo browser.';
+        }
+    }
+
+    function updatePinnedCount() {
+        if (pinnedCount) pinnedCount.textContent = pinnedMovies.size + (pinnedMovies.size === 1 ? ' film fissato' : ' film fissati');
+    }
+
+    function ensurePinnedRecords(view) {
+        for (const [key, saved] of pinnedMovies) {
+            const exists = [...view.records.values()].some(record => itemKey(record.item) === key);
+            if (!exists) view.records.set(key, makeRecord(saved.item, saved.sources, '', true));
+        }
+    }
+
+    function updatePinButton(record) {
+        if (!record.node) return;
+        record.pinned = pinnedMovies.has(itemKey(record.item));
+        record.node.classList.toggle('is-pinned', record.pinned);
+        record.node.dataset.pinned = String(record.pinned);
+        const button = record.node.querySelector('.pin-card-button');
+        if (!button) return;
+        button.hidden = itemType(record.item) !== 'movie';
+        button.setAttribute('aria-pressed', String(record.pinned));
+        button.setAttribute('aria-label', record.pinned ? 'Rimuovi dai film fissati' : 'Fissa questo film');
+        button.title = record.pinned ? 'Rimuovi dai film fissati' : 'Fissa questo film';
+        button.textContent = record.pinned ? '📌' : '📍';
+    }
+
+    function updateRuntimeLabel(record) {
+        if (!record.node) return;
+        const label = record.node.querySelector('.preview-runtime');
+        if (!label) return;
+        const duration = durations.get(itemKey(record.item)) ?? itemDuration(record.item);
+        if (!duration) {
+            label.textContent = '';
+            label.hidden = true;
+            return;
+        }
+        label.textContent = (itemType(record.item) === 'tv' ? 'Episodio: ' : '') + format_runtime(duration);
+        label.hidden = false;
+    }
+
+    function matchesCurrentFilters(view, record) {
+        // I film già fissati restano visibili anche se non corrispondono ai filtri.
+        if (pinnedMovies.has(itemKey(record.item))) return true;
+        const query = normalize(view.filters.query.trim());
+        const titles = [record.item.title, record.item.original_title, record.item.name, record.item.original_name].map(normalize);
+        if (query && !titles.some(title => title.includes(query))) return false;
+        if (view.filters.lists.size && ![...view.filters.lists].some(name => record.sources.has(name))) return false;
+        const genres = itemGenres(record.item);
+        if (view.filters.genres.size && ![...view.filters.genres].some(id => genres.includes(id))) return false;
+        return true;
+    }
+
+    function togglePinned(record) {
+        if (!record || itemType(record.item) !== 'movie') return;
+        const key = itemKey(record.item);
+        if (pinnedMovies.has(key)) {
+            pinnedMovies.delete(key);
+            if (pinStatus) pinStatus.textContent = 'Film rimosso dai fissati.';
+        } else {
+            pinnedMovies.set(key, { item: record.item, sources: [...record.sources] });
+            if (pinStatus) pinStatus.textContent = 'Film fissato in questo browser.';
+        }
+        savePinnedMovies();
+        for (const view of Object.values(views)) {
+            if (pinnedMovies.has(key)) ensurePinnedRecords(view);
+            for (const [recordKey, candidate] of view.records) {
+                if (itemKey(candidate.item) !== key) continue;
+                candidate.pinned = pinnedMovies.has(key);
+                if (!candidate.pinned && candidate.pinOnly) {
+                    candidate.node?.remove();
+                    view.records.delete(recordKey);
+                } else updatePinButton(candidate);
+            }
+        }
+        updatePinnedCount();
+        scheduleRender();
+    }
+
+    function pinVisibleFilms() {
+        const view = views[active];
+        let newlyPinned = 0;
+        for (const record of view.records.values()) {
+            if (itemType(record.item) !== 'movie' || !matchesCurrentFilters(view, record)) continue;
+            const key = itemKey(record.item);
+            if (pinnedMovies.has(key)) continue;
+            pinnedMovies.set(key, { item: record.item, sources: [...record.sources] });
+            newlyPinned++;
+        }
+        if (!newlyPinned) {
+            if (pinStatus) pinStatus.textContent = 'Nessun nuovo film visibile da fissare.';
+            return;
+        }
+        savePinnedMovies();
+        for (const view of Object.values(views)) {
+            ensurePinnedRecords(view);
+            for (const record of view.records.values()) updatePinButton(record);
+        }
+        updatePinnedCount();
+        if (pinStatus) pinStatus.textContent = newlyPinned + (newlyPinned === 1 ? ' film fissato.' : ' film fissati.');
+        scheduleRender();
+    }
+
+    function pickPinnedAtRandom() {
+        const choices = [...pinnedMovies.values()];
+        if (!choices.length) {
+            if (pinStatus) pinStatus.textContent = 'Fissa almeno un film prima di usare il dado.';
+            return;
+        }
+        if (pinStatus) pinStatus.textContent = 'Estrazione in corso…';
+        const chosen = choices[Math.floor(Math.random() * choices.length)];
+        const key = itemKey(chosen.item);
+        const view = views[active];
+        ensurePinnedRecords(view);
+        const record = [...view.records.values()].find(candidate => itemKey(candidate.item) === key);
+        if (!record) return;
+        ensureNode(view, record);
+        scheduleRender();
+        requestAnimationFrame(() => {
+            const card = [...view.main.querySelectorAll('.card')].find(node => node.dataset.itemKey === key);
+            if (card) {
+                view.main.querySelectorAll('.card-dice-picked').forEach(node => node.classList.remove('card-dice-picked'));
+                card.classList.add('card-dice-picked');
+                if (typeof card.scrollIntoView === 'function') card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            if (pinStatus) pinStatus.textContent = '🎲 ' + itemTitle(chosen.item);
+        });
+    }
+
+    function makeRecord(item, sources, play = '', pinOnly = false) {
+        return { item, sources: new Set(sources), play, node: null, pinOnly, pinned: pinnedMovies.has(itemKey(item)) };
     }
 
     function mergeRecord(map, item, source, play = '') {
@@ -136,6 +292,8 @@
             record = makeRecord(item, [source], play);
             map.set(key, record);
         } else {
+            record.pinOnly = false;
+            record.pinned = pinnedMovies.has(itemKey(item));
             record.sources.add(source);
             // Un elenco diverso può fornire campi che mancavano nella prima risposta.
             for (const [field, value] of Object.entries(item)) {
@@ -151,39 +309,63 @@
 
     function ensureNode(view, record) {
         if (record.node) return;
-        const source = [...record.sources][0] || '';
         const builder = itemType(record.item) === 'tv' ? html_tv_preview : html_movie_preview;
         const template = document.createElement('template');
         const prefix = view.name === 'local' ? 'local-' + view.nextNodeId++ + '-' : view.name + '-';
-        template.innerHTML = builder(source, record.item, record.play, prefix);
+        template.innerHTML = builder([...record.sources], record.item, record.play, prefix);
         record.node = template.content.firstElementChild;
+        record.node.dataset.recordKey = [...view.records.entries()].find(([, value]) => value === record)?.[0] || itemKey(record.item);
         view.main.appendChild(record.node);
+        updatePinButton(record);
+        updateRuntimeLabel(record);
+    }
+
+    function refreshRecordNode(record) {
+        if (!record.node) return;
+        const builder = itemType(record.item) === 'tv' ? html_tv_preview : html_movie_preview;
+        const template = document.createElement('template');
+        template.innerHTML = builder([...record.sources], record.item, record.play, '');
+        const updated = template.content.firstElementChild;
+        for (const selector of ['.preview-list-badges', '.preview-meta']) {
+            const current = record.node.querySelector(selector), replacement = updated.querySelector(selector);
+            if (current && replacement) current.replaceWith(replacement);
+        }
+        const title = record.node.querySelector('.preview-title');
+        const date = record.node.querySelector('.preview-date');
+        const overview = record.node.querySelector('.preview-overview');
+        const image = record.node.querySelector('.card-image');
+        if (title) title.textContent = itemTitle(record.item);
+        if (date) date.textContent = record.item.release_date || record.item.first_air_date || '';
+        if (overview) overview.textContent = record.item.overview || '';
+        if (image) {
+            image.alt = record.item.title || record.item.name || itemTitle(record.item);
+            if (record.item.poster_path) image.src = 'https://image.tmdb.org/t/p/' + (itemType(record.item) === 'tv' ? 'w300' : 'w342') + record.item.poster_path;
+            else image.removeAttribute('src');
+        }
+        record.node.dataset.lists = JSON.stringify([...record.sources]);
+        updatePinButton(record);
+        updateRuntimeLabel(record);
     }
 
     function adoptRecords(view, fresh) {
+        for (const [key, saved] of pinnedMovies) {
+            if (![...fresh.values()].some(record => itemKey(record.item) === key)) {
+                fresh.set(key, makeRecord(saved.item, saved.sources, '', true));
+            }
+        }
         for (const [key, record] of fresh) {
             const old = view.records.get(key);
             if (old && old.node) {
                 record.node = old.node;
-                // I dati usati nel testo possono essere aggiornati dalla risposta nuova.
-                const title = record.node.querySelector('.preview-title');
-                const date = record.node.querySelector('.preview-date');
-                const overview = record.node.querySelector('.preview-overview');
-                const image = record.node.querySelector('.card-image');
-                if (title) title.textContent = itemTitle(record.item);
-                if (date) date.textContent = record.item.release_date || record.item.first_air_date || '';
-                if (overview) overview.textContent = record.item.overview || '';
-                if (image) {
-                    image.alt = record.item.title || record.item.name || itemTitle(record.item);
-                    if (record.item.poster_path) image.src = 'https://image.tmdb.org/t/p/' + (itemType(record.item) === 'tv' ? 'w300' : 'w342') + record.item.poster_path;
-                    else image.removeAttribute('src');
-                }
+                record.pinOnly = old.pinOnly && !pinnedMovies.has(itemKey(record.item));
             }
+            record.pinned = pinnedMovies.has(itemKey(record.item));
         }
         for (const [key, record] of view.records) {
             if (!fresh.has(key) && record.node) record.node.remove();
         }
         view.records = fresh;
+        for (const record of view.records.values()) refreshRecordNode(record);
         scheduleRender();
     }
 
@@ -249,20 +431,27 @@
     }
 
     function renderView(view) {
+        ensurePinnedRecords(view);
         renderFilters(view);
         const query = normalize(view.filters.query.trim());
         const ordered = [...view.records.values()];
-        if (view.filters.sort) ordered.sort((a, b) => compareRecords(a, b, view.filters.sort));
+        ordered.sort((a, b) => {
+            const aPinned = pinnedMovies.has(itemKey(a.item)), bPinned = pinnedMovies.has(itemKey(b.item));
+            if (aPinned !== bPinned) return aPinned ? -1 : 1;
+            return view.filters.sort ? compareRecords(a, b, view.filters.sort) : 0;
+        });
         let visible = 0;
         ordered.forEach((record, index) => {
             ensureNode(view, record);
+            record.pinned = pinnedMovies.has(itemKey(record.item));
+            updatePinButton(record);
             const item = record.item;
             const titles = [item.title, item.original_title, item.name, item.original_name].map(normalize);
             const matchesTitle = !query || titles.some(title => title.includes(query));
             const matchesList = !view.filters.lists.size || [...view.filters.lists].some(name => record.sources.has(name));
             const genres = itemGenres(item);
             const matchesGenre = !view.filters.genres.size || [...view.filters.genres].some(id => genres.includes(id));
-            const show = matchesTitle && matchesList && matchesGenre;
+            const show = record.pinned || (matchesTitle && matchesList && matchesGenre);
             record.node.style.display = show ? '' : 'none';
             record.node.style.order = String(index);
             record.node.dataset.lists = JSON.stringify([...record.sources]);
@@ -286,7 +475,6 @@
         if (active !== name) views[active].scroll = window.scrollY;
         active = name;
         for (const view of Object.values(views)) view.main.style.display = view.name === active ? '' : 'none';
-        document.getElementById('fordice').style.display = name === 'online' ? '' : 'none';
         const view = views[active];
         search.value = view.filters.query;
         sortInput.value = view.filters.sort;
@@ -330,6 +518,25 @@
         const button = event.target.closest('.filter-genre');
         if (button) toggleFilter('genres', button.dataset.value);
     });
+    document.getElementById('pin-visible').addEventListener('click', pinVisibleFilms);
+    document.querySelector('.dice-button').addEventListener('click', pickPinnedAtRandom);
+    for (const view of Object.values(views)) {
+        view.main.addEventListener('click', event => {
+            const button = event.target.closest('.pin-card-button');
+            if (!button) return;
+            event.preventDefault();
+            event.stopPropagation();
+            const card = button.closest('.card');
+            const record = [...view.records.values()].find(candidate => candidate.node === card);
+            togglePinned(record);
+        });
+        view.main.addEventListener('pointerover', event => {
+            const card = event.target.closest('.card');
+            if (!card || card.contains(event.relatedTarget)) return;
+            const record = [...view.records.values()].find(candidate => candidate.node === card);
+            if (record) loadOneDuration(view, record);
+        });
+    }
     document.querySelectorAll('.navbar-nav a').forEach(link => {
         link.addEventListener('click', event => {
             if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -425,7 +632,7 @@
             }
         }
         const hasCache = Boolean(cached && Array.isArray(cached.records) && cached.records.length);
-        const hasExisting = view.records.size > 0;
+        const hasExisting = [...view.records.values()].some(record => !record.pinOnly);
         scheduleRender();
         const fresh = new Map();
         let incomplete = false;
@@ -491,6 +698,49 @@
         startOnline();
     }
 
+    function requestDuration(record) {
+        const key = itemKey(record.item);
+        const known = durations.get(key) ?? itemDuration(record.item);
+        if (known) return Promise.resolve(known);
+        if (durationRequests.has(key)) return durationRequests.get(key);
+        const request = fetchJson('/3/' + itemType(record.item) + '/' + record.item.id).then(async detail => {
+            const duration = itemDuration(detail) || Number(detail.last_episode_to_air && detail.last_episode_to_air.runtime) || null;
+            if (duration > 0) {
+                durations.set(key, duration);
+                for (const view of Object.values(views)) {
+                    for (const candidate of view.records.values()) {
+                        if (itemKey(candidate.item) === key) updateRuntimeLabel(candidate);
+                    }
+                }
+                await cachePut('durations-v1', [...durations.entries()]);
+            }
+            return duration;
+        }).finally(() => durationRequests.delete(key));
+        durationRequests.set(key, request);
+        return request;
+    }
+
+    async function loadOneDuration(view, record) {
+        const key = itemKey(record.item);
+        const known = durations.get(key) ?? itemDuration(record.item);
+        if (known) {
+            updateRuntimeLabel(record);
+            return;
+        }
+        if (view.durationChecked.has(key) || !navigator.onLine || !window.HOMECINEMA_TMDB_TOKEN) return;
+        view.durationChecked.add(key);
+        const label = record.node && record.node.querySelector('.preview-runtime');
+        if (label) { label.textContent = 'Durata…'; label.hidden = false; }
+        try {
+            await requestDuration(record);
+            view.durationFailed.delete(key);
+        } catch (_) {
+            view.durationFailed.add(key);
+            updateRuntimeLabel(record);
+            if (!view.durationRetryTimer) view.durationRetryTimer = setTimeout(() => retryDurations(view), 30000);
+        }
+    }
+
     async function loadDurations(view) {
         if (view.durationPromise) return;
         const pending = [...view.records.values()].filter(record => {
@@ -505,9 +755,7 @@
                 while (index < pending.length) {
                     const record = pending[index++];
                     try {
-                        const detail = await fetchJson('/3/' + itemType(record.item) + '/' + record.item.id);
-                        const duration = itemDuration(detail) || Number(detail.last_episode_to_air && detail.last_episode_to_air.runtime) || null;
-                        if (duration > 0) durations.set(itemKey(record.item), duration);
+                        await requestDuration(record);
                         view.durationFailed.delete(itemKey(record.item));
                     } catch (error) {
                         view.durationFailed.add(itemKey(record.item));
@@ -517,7 +765,6 @@
                 }
             }
             await Promise.all(Array.from({ length: Math.min(4, pending.length) }, worker));
-            await cachePut('durations-v1', [...durations.entries()]);
         })().finally(() => {
             view.durationPromise = null;
             if (view.durationFailed.size && !view.durationRetryTimer) {
@@ -549,6 +796,8 @@
         for (const entry of Array.isArray(window.LOCAL_CATALOG) ? window.LOCAL_CATALOG : []) {
             if (entry && entry.item) mergeRecord(views.local.records, entry.item, 'Locale', entry.play || '');
         }
+        for (const view of Object.values(views)) ensurePinnedRecords(view);
+        updatePinnedCount();
         setView(active);
     }
     init();
