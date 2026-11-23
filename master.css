@@ -228,6 +228,12 @@ header {
     transform: translateY(0);
 }
 
+.filter[aria-pressed="true"] {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: white;
+}
+
 .filter-list,
 .filter-genre {
     /* Specifici per i filtri di lista e genere */

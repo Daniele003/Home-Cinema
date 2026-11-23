@@ -1,0 +1,14 @@
+{
+  "name": "homecinema",
+  "private": true,
+  "scripts": {
+    "test": "node tests/catalog.test.cjs"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "6.2.8",
+    "jsdom": "31.0.1"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

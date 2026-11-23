@@ -3,6 +3,9 @@ import re
 import sys
 import json
 import shutil
+import math
+import tempfile
+from urllib.parse import quote
 from tmdbv3api import TMDb, Search, Movie, TV
 
 #*************************************************************************************************************************************************************************************************************************************************************************
@@ -32,11 +35,8 @@ def salva_esclusione(item):
 #*************************************************************************************************************************************************************************************************************************************************************************
 
 class TMDBEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if hasattr(obj, 'entries'): return obj.entries
-        elif hasattr(obj, '_entries'): return obj._entries
-        elif hasattr(obj, '__dict__'): return obj.__dict__
-        return super().default(obj)
+    def default(self, o):
+        return normalizza_tmdb(o)
 
 #*************************************************************************************************************************************************************************************************************************************************************************
 # VISUALIZZAZIONE DEL MENU A CONSOLE
@@ -148,7 +148,7 @@ def Trova(f_name, force_type=None, pos=1):
         voci = ["Cerca altro titolo manuale"]
         voci.extend([f"[{v.get('media_type', '').upper()}] {v.get('name', '')}{v.get('title', '')} ({v.get('first_air_date', '')[:4]}{v.get('release_date', '')[:4]})" for v in media_filtrati])
         scelta = mostra_menu(f"Associa: {f_name}", voci)
-        if scelta == -1: return None
+        if scelta is None or scelta == -1: return None
         if scelta == 0:
             return Trova(input("Titolo da cercare: "), force_type=force_type, pos=False)
         return media_filtrati[scelta - 1]
@@ -175,7 +175,7 @@ def scan_recursive(directory, esclusioni, risultati):
 
     for item in items:
         if item in esclusioni: continue
-        full_path = os.path.join(directory, item).replace("\\", "/")
+        full_path = os.path.join(directory, item)
         
         if os.path.isdir(full_path):
             # È una cartella: Serie TV o Contenitore?
@@ -204,57 +204,141 @@ def scan_recursive(directory, esclusioni, risultati):
                 print(f"Analisi Film: {item}...", end="\r")
                 risultati[full_path] = Trova(item, force_type='movie')
 
+def normalizza_tmdb(valore, _attivi=None):
+    """Converte i wrapper TMDB e i loro campi in soli tipi JSON, senza mutarli."""
+    if valore is None or isinstance(valore, (str, bool, int)):
+        return valore
+    if isinstance(valore, float):
+        if not math.isfinite(valore):
+            raise ValueError("Numero non valido nei dati TMDB")
+        return valore
+
+    if _attivi is None:
+        _attivi = set()
+    identita = id(valore)
+    if identita in _attivi:
+        raise ValueError("Riferimento circolare nei dati TMDB")
+    _attivi.add(identita)
+    try:
+        if isinstance(valore, (list, tuple)):
+            return [normalizza_tmdb(v, _attivi) for v in valore]
+
+        if isinstance(valore, dict):
+            # Anche il vecchio HTML può contenere AsObj già serializzati.
+            sorgente = valore
+            raw = valore.get('_json')
+            if isinstance(raw, (dict, list)):
+                risultato = normalizza_tmdb(raw, _attivi)
+                if isinstance(risultato, dict):
+                    for k, v in sorgente.items():
+                        if isinstance(k, str) and not k.startswith('_'):
+                            risultato[k] = normalizza_tmdb(v, _attivi)
+                return risultato
+            if not all(isinstance(k, str) for k in sorgente):
+                raise TypeError("I campi TMDB devono avere nomi testuali")
+            # In un letterale JavaScript questa chiave ha una semantica speciale
+            # e non verrebbe conservata come una normale proprietà JSON.
+            if '__proto__' in sorgente:
+                raise ValueError("Campo __proto__ non rappresentabile senza alterazioni")
+            return {k: normalizza_tmdb(v, _attivi) for k, v in sorgente.items()}
+
+        raw = getattr(valore, '_json', None)
+        if isinstance(raw, (dict, list)):
+            risultato = normalizza_tmdb(raw, _attivi)
+            if isinstance(risultato, dict):
+                # Conserva anche i campi pubblici aggiornati dopo la ricerca.
+                for k, v in vars(valore).items():
+                    if not k.startswith('_'):
+                        if k == '__proto__':
+                            raise ValueError("Campo __proto__ non rappresentabile senza alterazioni")
+                        risultato[k] = normalizza_tmdb(v, _attivi)
+            return risultato
+        for attributo in ('_obj_list', 'entries', '_entries'):
+            contenuto = getattr(valore, attributo, None)
+            if isinstance(contenuto, (dict, list, tuple)):
+                return normalizza_tmdb(contenuto, _attivi)
+        raise TypeError(f"Tipo non supportato nei dati TMDB: {type(valore).__name__}")
+    finally:
+        _attivi.remove(identita)
+
+
+def percorso_file_url(percorso):
+    """Crea un URL file assoluto, codificando anche #, %, virgolette e spazi."""
+    percorso = os.fsdecode(os.fspath(percorso))
+    # Gli URL già codificati non vanno codificati una seconda volta.
+    if re.match(r'^file:/', percorso, re.IGNORECASE):
+        return percorso[:5] + quote(percorso[5:], safe='/%:', errors='surrogateescape')
+
+    # Supporta i prefissi di percorso esteso Windows e le condivisioni UNC.
+    if percorso.startswith('\\\\?\\UNC\\'):
+        percorso = '\\\\' + percorso[8:]
+    elif percorso.startswith('\\\\?\\'):
+        percorso = percorso[4:]
+    if percorso.startswith('\\\\') or percorso.startswith('//'):
+        unc = percorso.replace('\\', '/').lstrip('/')
+        host, sep, resto = unc.partition('/')
+        if not host or not sep:
+            raise ValueError("Percorso UNC privo di condivisione")
+        return ('file://' + quote(host, safe='[]:', errors='surrogateescape') + '/'
+                + quote(resto, safe='/:', errors='surrogateescape'))
+
+    if re.match(r'^[a-zA-Z]:[\\/]', percorso):
+        return 'file:///' + quote(percorso.replace('\\', '/'), safe='/:', errors='surrogateescape')
+    if re.match(r'^[a-zA-Z]:', percorso) and os.name != 'nt':
+        raise ValueError("Percorso Windows relativo all'unità non risolvibile")
+
+    assoluto = os.path.abspath(percorso)
+    if os.name == 'nt':
+        return percorso_file_url(assoluto)
+    return 'file://' + quote(assoluto, safe='/:', errors='surrogateescape')
+
+
 def genera_html(dati):
-    cards_js_calls = ""
+    """Mantiene il nome storico, ma scrive solo i dati del catalogo locale."""
+    catalogo = []
     for path, info in dati.items():
-        media_info = info.get("info_ricerca")
+        media_info = info.get('info_ricerca')
         if not media_info:
             continue
+        item = normalizza_tmdb(media_info)
+        if not isinstance(item, dict):
+            raise TypeError("info_ricerca deve contenere un oggetto TMDB")
+        dettagli = info.get('info_dettagliate')
+        if dettagli:
+            try:
+                dettagli = normalizza_tmdb(dettagli)
+                if isinstance(dettagli, dict):
+                    for campo in ('runtime', 'episode_run_time', 'last_episode_to_air'):
+                        if dettagli.get(campo) is not None:
+                            item[campo] = dettagli[campo]
+            except (TypeError, ValueError):
+                # Se i dettagli non sono disponibili, la ricerca resta utilizzabile.
+                pass
+        if not isinstance(item.get('genre_ids'), list):
+            # I builder richiedono un array, anche quando TMDB omette i generi.
+            if item.get('genre_ids') is not None:
+                raise TypeError("genre_ids deve essere una lista")
+            item['genre_ids'] = []
+        catalogo.append({'item': item, 'play': percorso_file_url(path)})
 
-        media_type = media_info.get("media_type")
-        
-        # Escape backticks in path for JavaScript template literal
-        js_path = path.replace("\\", "/").replace("`", "\\`")
+    if not catalogo:
+        print("Nessun titolo associato: il catalogo locale precedente non è stato sostituito.")
+        return
 
-        # Controlla se l'oggetto genre_ids ha l'attributo _json
-        if hasattr(media_info.get('genre_ids'), '_json'):
-            # Estrai solo la lista e sovrascrivi il campo
-            media_info['genre_ids'] = media_info['genre_ids']._json
-        # Alternativa: controlla se ha _obj_list
-        elif hasattr(media_info.get('genre_ids'), '_obj_list'):
-            media_info['genre_ids'] = media_info['genre_ids']._obj_list
-
-        # Ora esegui il dump
-        # Convert media_info dictionary to a JSON string
-        media_info_json_str = json.dumps(media_info, ensure_ascii=False, cls=TMDBEncoder)
-        
-        # We pass the JSON string directly as an object literal in JS
-        # No need to parse it, just inject the JSON string which is valid JS object syntax
-        if media_type == 'tv':
-            cards_js_calls += f"        document.write(html_tv_preview('Locale', {media_info_json_str}, `file:///{js_path}`));\n"
-        else:
-            cards_js_calls += f"        document.write(html_movie_preview('Locale', {media_info_json_str}, `file:///{js_path}`));\n"
-
-    html_template = f"""<!DOCTYPE html>
-<script src="Builders.js"></script>
-<script type="text/javascript">
-    document.write(html_testa("Home Cinema | Catalogo"))
-</script>
-<main id="lista">
-    <script>
-{cards_js_calls}
-        // Aggiornamento conteggio titoli
-        const risultatiEl = document.getElementById("#risultati");
-        if (risultatiEl) risultatiEl.innerText = document.querySelectorAll('.card').length + " titoli";
-    </script>
-</main>
-<footer></footer>
-</body>
-</html>"""
-
-    with open("local.html", "w", encoding="utf-8") as f:
-        f.write(html_template)
-    print("\nPagina local.html generata con successo!")
+    # JSON, non template literal: anche se incorporato in HTML, non può chiudere
+    # lo script. Evita anche numeri non validi e caratteri Unicode problematici.
+    payload = json.dumps(catalogo, ensure_ascii=True, allow_nan=False, indent=2)
+    payload = payload.replace('<', r'\u003c').replace('>', r'\u003e').replace('&', r'\u0026')
+    temp_path = None
+    try:
+        with tempfile.NamedTemporaryFile('w', encoding='utf-8', newline='\n', dir='.', delete=False) as f:
+            temp_path = f.name
+            f.write('window.LOCAL_CATALOG = ' + payload + ';\n')
+        os.replace(temp_path, 'local-data.js')
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            os.remove(temp_path)
+    print(f"\nDati local-data.js generati con successo: {len(catalogo)} titoli.")
 
 if __name__ == "__main__":
     risultati = {}
@@ -262,7 +346,7 @@ if __name__ == "__main__":
     
     print("--- Home Cinema Scanner Avanzato ---")
     while True:
-        root_dir = input("\nInserisci percorso cartella radice (o 'exit'): ").replace("\\","/")
+        root_dir = input("\nInserisci percorso cartella radice (o 'exit'): ")
         if root_dir.lower() == 'exit': break
         if os.path.isdir(root_dir):
             scan_recursive(root_dir, esclusioni, risultati)
@@ -275,7 +359,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     while True:
-        menu_main = ["Salva e Genera HTML", "Rivedi associazioni", "Elimina film", "Ignora sempre", "Esci"]
+        menu_main = ["Salva e Genera Dati Catalogo", "Rivedi associazioni", "Elimina film", "Ignora sempre", "Esci"]
         scelta = mostra_menu("GESTIONE LIBRERIA", menu_main)
         
         if scelta == 0: break
@@ -284,22 +368,30 @@ if __name__ == "__main__":
             chiavi = list(risultati.keys())
             voci = [f"{os.path.basename(k)} -> {risultati[k].get('name', risultati[k].get('title', 'NON ASSOCIATO')) if risultati[k] else 'NON ASSOCIATO'}" for k in chiavi]
             idx = mostra_menu("Correggi", voci)
-            if idx != -1:
+            if idx is not None and idx != -1:
                 t = chiavi[idx]
                 risultati[t] = Trova(os.path.basename(t), pos=False)
         elif scelta == 2:
             chiavi = list(risultati.keys())
             voci = [f"ELIMINA: {os.path.basename(k)}" for k in chiavi]
             idx = mostra_menu("Rimuovi", voci)
-            if idx != -1: del risultati[chiavi[idx]]
+            if idx is not None and idx != -1: del risultati[chiavi[idx]]
         elif scelta == 3:
             chiavi = list(risultati.keys())
             voci = [f"IGNORA: {os.path.basename(k)}" for k in chiavi]
             idx = mostra_menu("Escludi", voci)
-            if idx != -1:
+            if idx is not None and idx != -1:
                 n = os.path.basename(chiavi[idx])
                 salva_esclusione(n)
                 del risultati[chiavi[idx]]
+
+    non_associati = sum(1 for info in risultati.values() if not info)
+    if non_associati:
+        print(f"{non_associati} elementi non sono associati e non compariranno nel catalogo generato.")
+        conferma = input("Sostituire comunque il catalogo locale? [s/N] ").strip().lower()
+        if conferma not in ('s', 'si', 'sì'):
+            print("Catalogo precedente mantenuto.")
+            sys.exit(0)
 
     print("\nDownload dettagli...")
     movie_api, tv_api = Movie(), TV()
@@ -319,7 +411,5 @@ if __name__ == "__main__":
         json.dump(dati_completi, f, indent=4, ensure_ascii=False, cls=TMDBEncoder)
     '''
 
-    # Genera HTML statico
+    # Genera i dati del catalogo senza modificare la pagina HTML
     genera_html(dati_completi)
-    
-    print("\n local.html generata!")

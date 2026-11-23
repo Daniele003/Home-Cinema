@@ -1,11 +1,11 @@
 function html_logo() {
-    return '<div class="logo-container"><img src="logo.png" alt="[Mostra una ghianda]" class="logo-image"><div class="logo-text">Home <br> Cinema</div></div>'
+    return '<div class="logo-container"><img src="logo.png" alt="[Mostra una ghianda]" class="logo-image"><div class="logo-text">Home <br> Cinema</div></div>';
 }
 
 function change_theme() {
-    let new_child = document.createElement('link');
+    const new_child = document.createElement('link');
     new_child.rel = 'stylesheet';
-    let target = document.querySelector('link[href="LightTheme.css"]');
+    const target = document.querySelector('link[href="LightTheme.css"]');
     if (target) {
         new_child.href = 'DarkTheme.css';
         document.head.replaceChild(new_child, target);
@@ -17,17 +17,16 @@ function change_theme() {
 
 function html_testa(page_title) {
     let s = '<html lang="it">'
-        //intestazione html di tutte le pagine
         + '<head>'
         + '<meta charset="UTF-8">'
         + '<meta name="viewport" content="width=device-width, initial-scale=1.0">'
-        + '<link rel="stylesheet" href="master.css">'
+        + '<link rel="stylesheet" href="master.css">';
     if ((new Date()).getHours() >= 22 || (new Date()).getHours() <= 6) {
-        s += '<link rel="stylesheet" href="DarkTheme.css">'
+        s += '<link rel="stylesheet" href="DarkTheme.css">';
     } else {
-        s += '<link rel="stylesheet" href="LightTheme.css">'
+        s += '<link rel="stylesheet" href="LightTheme.css">';
     }
-    s += '<title>' + page_title + '</title>'
+    s += '<title>' + escape_html(page_title) + '</title>'
         + '</head>'
         + '<body>'
         + '<header>'
@@ -46,127 +45,74 @@ function html_testa(page_title) {
         + '<input type="checkbox" id="change-theme" class="theme-toggle" onchange="change_theme()">'
         + '<label for="change-theme" class="theme-label">🌙</label>'
         + '</div>'
-        + '<div id="fordice">'
-        + '</div>'
+        + '<div id="fordice"></div>'
         + '</div>'
         + '</nav>'
         + '<div class="search-filters-container">'
         + '<div class="search-bar">'
-        + '<button class="btn-filters" aria-label="Filtri Avanzati" onclick="document.querySelectorAll(\'.filters-row\').forEach(el => el.classList.toggle(\'hidden\'));">⚙️ Filtri</button>' + '<input type="search" class="search-input" placeholder="Cerca film o serie TV...">'
-        + '<span class="results-count" id="#risultati">0 titoli</span>'
+        + '<button class="btn-filters" aria-label="Filtri Avanzati" onclick="document.querySelectorAll(\'.filters-row\').forEach(el => el.classList.toggle(\'hidden\'));">⚙️ Filtri</button>'
+        + '<input type="search" class="search-input" placeholder="Cerca film o serie TV...">'
+        + '<span class="results-count" id="#risultati" aria-live="polite">0 titoli</span>'
         + '</div>'
         + '<div class="filters-row" id="filtri-avanzati-liste"></div>'
         + '<div class="filters-row" id="filtri-avanzati-generi"></div>'
         + '<div class="sort-container">'
-        + '<label for="ordine" class="sort-label">Ordina per:</label>'
-        + '<input list="ordine" class="sort-select" id="sort-select">'
+        + '<label for="sort-select" class="sort-label">Ordina per:</label>'
+        + '<input list="ordine" class="sort-select" id="sort-select" autocomplete="off">'
         + '<datalist id="ordine">'
         + '<option>Titolo</option>'
-        + '<option disabled>Durata</option>'
+        + '<option>Durata</option>'
         + '<option>Anno</option>'
         + '<option>Voto</option>'
         + '</datalist>'
         + '</div>'
         + '</div>'
-        + '</header>'
-    return s
+        + '</header>';
+    return s;
 }
 
-function html_movie_preview(source_name, _json, play = false) {
-    /* struttura JSON attesa
-        adult:
-        backdrop_path:
-        genre_ids:
-        id:
-        original_language:
-        original_title:
-        overview:
-        popularity:
-        poster_path:
-        rating:
-        release_date:
-        softcore:
-        title:
-        video:
-        vote_average:
-        vote_count:
-    */
-    console.log('called html_movie_preview', source_name, _json, play)
-    mID = 'mid' + _json.id
-    target = document.getElementById(mID)
-    if (target) {
-        // se è già presente, aggiungi semplicemente la classe per evidenziare che è presente in più fonti
-        target.dataset.sources += ' ' + source_name
-        return ''
-    } else {
-        let video = ''
-        if (play)
-            video = '<div class="video-container"><video loading="lazy" controls><source src="' + play + '"></video></div>'
-        return '<div id="' + mID + '" class="movie card" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">'
-            + '<div class="card-image-wrapper">'
-            + '<img src="https://image.tmdb.org/t/p/w342' + _json.poster_path + '" alt="' + _json.title + '" class="card-image">'
-            + '</div>'
-            + '<div class="preview">'
-            + '<div class="preview-content">'
-            + '<h5 class="preview-title">' + _json.original_title + '</h5>'
-            + '<p class="preview-date">' + _json.release_date + '</p>'
-            + '<p class="preview-overview">' + _json.overview + '</p>'
-            + video
-            + '</div>'
-            + '</div>'
-            + '</div>'
-    }
+function escape_html(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[character]);
 }
 
-function html_tv_preview(source_name, _json, play = false) {
-    /* struttura JSON attesa
-        adult:
-        backdrop_path:
-        first_air_date:
-        genre_ids:
-        id:
-        name:
-        origin_country:
-        original_language:
-        original_name:
-        overview:
-        popularity:
-        poster_path:
-        softcore:
-        vote_average:
-        vote_count:
-    */
-    console.log('called html_tv_preview', source_name, _json, play)
-    tvID = 'tv' + _json.id
-    target = document.getElementById(tvID)
-    if (target) {
-        // se è già presente, aggiungi semplicemente la classe per evidenziare che è presente in più fonti
-        target.dataset.sources += ' ' + source_name
-        return ''
-    } else {
-        let video = ''
-        if (play)
-            video = '<div class="video-container"><video loading="lazy" controls><source src="' + play + '"></video></div>'
-        return '<div id="' + tvID + '" class="tv card" data-lists="' + source_name + '" data-genres="' + _json.genre_ids.join(' ') + '">'
-            + '<div class="card-image-wrapper">'
-            + '<img src="https://image.tmdb.org/t/p/w300' + _json.poster_path + '" alt="' + _json.name + '" class="card-image">'
-            + '</div>'
-            + '<div class="preview">'
-            + '<div class="preview-content">'
-            + '<h4 class="preview-title">' + _json.name + '</h4>'
-            + '<p class="preview-date">' + _json.first_air_date + '</p>'
-            + '<p class="preview-overview">' + _json.overview + '</p>'
-            + video
-            + '</div>'
-            + '</div>'
-            + '</div>'
-    }
+// I builder conservano le classi e la struttura delle card originali.
+// La deduplicazione e le liste di appartenenza sono gestite dal catalogo.
+function html_movie_preview(source_name, item, play = false, id_prefix = '') {
+    return html_media_preview('movie', source_name, item, play, id_prefix);
+}
+
+function html_tv_preview(source_name, item, play = false, id_prefix = '') {
+    return html_media_preview('tv', source_name, item, play, id_prefix);
+}
+
+function html_media_preview(type, source_name, item, play, id_prefix) {
+    const is_tv = type === 'tv';
+    const title = is_tv ? (item.name || item.original_name) : (item.original_title || item.title);
+    const image_title = is_tv ? (item.name || item.original_name) : (item.title || item.original_title);
+    const date = is_tv ? item.first_air_date : item.release_date;
+    const genres = Array.isArray(item.genre_ids) ? item.genre_ids : [];
+    const poster = item.poster_path ? 'https://image.tmdb.org/t/p/' + (is_tv ? 'w300' : 'w342') + item.poster_path : '';
+    const video = play ? '<div class="video-container"><video loading="lazy" controls><source src="' + escape_html(play) + '"></video></div>' : '';
+    const heading = is_tv ? 'h4' : 'h5';
+    return '<div id="' + escape_html(id_prefix + (is_tv ? 'tv' : 'mid') + item.id) + '" class="' + (is_tv ? 'tv' : 'movie') + ' card" data-lists="' + escape_html(source_name) + '" data-genres="' + escape_html(genres.join(' ')) + '">'
+        + '<div class="card-image-wrapper">'
+        + '<img' + (poster ? ' src="' + escape_html(poster) + '"' : '') + ' alt="' + escape_html(image_title || '') + '" class="card-image" loading="lazy">'
+        + '</div>'
+        + '<div class="preview">'
+        + '<div class="preview-content">'
+        + '<' + heading + ' class="preview-title">' + escape_html(title || '') + '</' + heading + '>'
+        + '<p class="preview-date">' + escape_html(date || '') + '</p>'
+        + '<p class="preview-overview">' + escape_html(item.overview || '') + '</p>'
+        + video
+        + '</div></div></div>';
 }
 
 function html_filtro_lista(nome) {
-    return '<button class="filter filter-list" title="Filtra per ' + nome + '">' + nome + '</button>'
+    return '<button type="button" class="filter filter-list" aria-pressed="false" title="Filtra per ' + escape_html(nome) + '">' + escape_html(nome) + '</button>';
 }
 
 function html_filtro_genere(id, nome) {
-    return '<button id="g' + id + '" class="filter filter-genre hidden" title="Filtra per genere ' + nome + '">' + nome + '</button>'
+    return '<button type="button" id="g' + escape_html(id) + '" class="filter filter-genre" aria-pressed="false" title="Filtra per genere ' + escape_html(nome) + '">' + escape_html(nome) + '</button>';
 }

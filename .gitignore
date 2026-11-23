@@ -1,3 +1,6 @@
 dubbi e consigli.url
 .$Home Cinema Diagram.drawio.bkp
 libreria_media.json
+node_modules/
+dist/
+__pycache__/
