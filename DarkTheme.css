@@ -3,24 +3,24 @@
    ======================================== */
 
 :root {
-    --color-primary: #e1eee9;
-    --color-primary-light: #b7d3c8;
-    --color-accent: #55b8a8;
-    --color-accent-light: #76cbbb;
-    --color-bg: #101d25;
-    --color-bg-secondary: #192b34;
-    --color-text: #e1eee9;
-    --color-text-light: #a8c0c2;
-    --color-border: #35505a;
-    --color-card-bg: #1a2b34;
-    --nav-surface: #182a34;
-    --filters-surface: linear-gradient(135deg,#192d36,#203640 60%,#1b3038);
-    --filter-surface: #203640;
-    --filter-border: #47636a;
-    --filter-text: #d9e8e2;
-    --filter-hover: #2b6769;
-    --filter-hover-text: #ffffff;
-    --filter-active-text: #10242b;
+    --color-primary: #e9e4db;
+    --color-primary-light: #c9c1b5;
+    --color-accent: #e08a68;
+    --color-accent-light: #efa181;
+    --color-bg: #171e23;
+    --color-bg-secondary: #222b31;
+    --color-text: #e9e4db;
+    --color-text-light: #b3b3ad;
+    --color-border: #414b50;
+    --color-card-bg: #252e34;
+    --nav-surface: #222b31;
+    --filters-surface: linear-gradient(135deg,#202a30,#2b3439 58%,#242e33);
+    --filter-surface: #29343a;
+    --filter-border: #536066;
+    --filter-text: #e5e1d9;
+    --filter-hover: #9a5946;
+    --filter-hover-text: #fffdfa;
+    --filter-active-text: #251a17;
 }
 
 body {
@@ -30,7 +30,7 @@ body {
 
 header {
     background-color: var(--color-card-bg);
-    border-bottom: 2px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
 }
 
 .navbar-container {
@@ -38,13 +38,13 @@ header {
 }
 
 .search-filters-container {
-    background-color: var(--color-bg-secondary);
+    background: var(--filters-surface);
     border-bottom: 1px solid var(--color-border);
 }
 
 .btn-filters {
     background-color: var(--color-accent);
-    color: white;
+    color: #251a17;
     border: none;
 }
 
@@ -64,7 +64,7 @@ header {
 
 .search-input:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    box-shadow: 0 0 0 3px color-mix(in srgb,var(--color-accent) 22%,transparent);
 }
 
 .results-count {
@@ -74,9 +74,9 @@ header {
 }
 
 .filter {
-    color: var(--color-text);
-    border-color: var(--color-border);
-    background-color: transparent;
+    color: var(--filter-text);
+    border-color: var(--filter-border);
+    background-color: var(--filter-surface);
 }
 
 .filter:hover:not(.hidden) {
@@ -97,7 +97,7 @@ header {
 
 .sort-select:focus {
     border-color: var(--color-accent);
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    box-shadow: 0 0 0 3px color-mix(in srgb,var(--color-accent) 22%,transparent);
 }
 
 .card {
@@ -119,7 +119,7 @@ header {
     }
     
     .logo-link:hover .logo-image {
-        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        box-shadow: 0 4px 12px color-mix(in srgb,var(--color-accent) 28%,transparent);
     }
 }
 
