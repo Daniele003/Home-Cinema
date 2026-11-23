@@ -9,7 +9,7 @@ const code = fs.readFileSync(base + 'catalog.js', 'utf8');
 const indexedDB = new IDBFactory();
 const html = `<!DOCTYPE html><html><head></head><body>
 <nav><ul class="navbar-nav"><li><a href="home.html">Online</a></li><li><a href="local.html">Locale</a></li></ul></nav><div id="fordice"><button class="dice-button"></button></div>
-<input type="search" class="search-input"><span id="#risultati"></span><button id="pin-visible"></button><span id="pinned-count"></span><span id="pin-status"></span><div id="filtri-avanzati-liste"></div><div id="filtri-avanzati-generi"></div><input id="sort-select">
+<input type="search" class="search-input"><span id="#risultati"></span><button id="pin-visible"></button><span id="pinned-count"></span><span id="pin-status"></span><div id="filtri-avanzati-liste"></div><div id="filtri-avanzati-tipo"></div><div id="filtri-avanzati-generi"></div><input id="sort-select">
 <main id="catalog-online"></main><main id="catalog-local"></main></body></html>`;
 const a = { id: 1, title:'Àlpha', original_title:'Alpha', genre_ids:[28], vote_average:7.5, vote_count:100, release_date:'2020-01-01', overview:'one', media_type:'movie' };
 const b = { id: 2, title:'Beta', original_title:'Beta', genre_ids:[35], vote_average:9, vote_count:50, release_date:'1999-04-01', overview:'two', media_type:'movie' };
@@ -69,6 +69,15 @@ function clickNav(w, path) { w.document.querySelector('.navbar-nav a[href="'+pat
     await until(()=>!w.document.getElementById('#risultati').textContent.includes('caricamento'),'online ready');
     assert.ok(w.document.querySelector('#catalog-online').contains(firstNode),'original card must survive navigation');
     assert.equal(visible(w).length,3,'duplicates counted once');
+    const tvFilter=w.document.querySelector('.filter-media-type[data-value="tv"]');
+    assert.ok(tvFilter,'media type filter exists for TV series');
+    tvFilter.click(); await delay(60);
+    assert.equal(visible(w).length,1,'TV filter hides movies');
+    assert.equal(visible(w)[0].id,'online-tv3');
+    w.document.querySelector('.filter-media-type[data-value="tv"]').click(); await delay(60);
+    w.document.querySelector('.filter-media-type[data-value="movie"]').click(); await delay(60);
+    assert.equal(visible(w).length,2,'movie filter hides series');
+    w.document.querySelector('.filter-media-type[data-value="movie"]').click(); await delay(60);
     const alpha=w.document.getElementById('online-mid1');
     assert.deepEqual(new Set(JSON.parse(alpha.dataset.lists)),new Set(['watchlist','favorite','Lista con spazi']));
     assert.equal(alpha.querySelector('.preview-user-rating').textContent,'Il tuo voto: 8.5/10','personal TMDB rating appears on the card');
@@ -92,7 +101,7 @@ function clickNav(w, path) { w.document.querySelector('.navbar-nav a[href="'+pat
     assert.ok(maxRequests()<=4,'never exceed the shared network concurrency limit');
     alpha.querySelector('.pin-card-button').click();
     await delay(40);
-    assert.equal(w.document.getElementById('pinned-count').textContent,'1 film fissato','single-card pin is persisted');
+    assert.equal(w.document.getElementById('pinned-count').textContent,'1 titolo fissato','single-card pin is persisted');
     input(w,'.search-input','beta'); await delay(60); clickNav(w,'local.html'); await delay(60); assert.equal(w.document.querySelector('.search-input').value,'','separate per-catalog filters');
     input(w,'.search-input','gamma'); await delay(60); assert.equal(visible(w,'#catalog-local').length,2,'a pinned film stays visible alongside the local search result');
     clickNav(w,'home.html'); await delay(60); assert.equal(w.document.querySelector('.search-input').value,'beta','previous search restored');
@@ -101,7 +110,7 @@ function clickNav(w, path) { w.document.querySelector('.navbar-nav a[href="'+pat
     await until(()=>second.w.document.querySelectorAll('#catalog-online .card').length===3,'cached titles displayed before failed network');
     assert.equal(second.w.document.querySelector('.search-input').value,'beta','filters survive reload');
     assert.equal(visible(second.w).length,2,'pinned film remains visible despite saved search');
-    assert.equal(second.w.document.querySelector('#pinned-count').textContent,'1 film fissato','pinned movies survive a reload');
+    assert.equal(second.w.document.querySelector('#pinned-count').textContent,'1 titolo fissato','pinned titles survive a reload');
     second.dom.window.close();
 
     const pinsTest=setup();
@@ -110,21 +119,33 @@ function clickNav(w, path) { w.document.querySelector('.navbar-nav a[href="'+pat
     input(pinsTest.w,'.search-input','beta');
     pinsTest.w.document.getElementById('pin-visible').click();
     await delay(80);
-    assert.equal(pinsTest.w.document.getElementById('pinned-count').textContent,'1 film fissato','bulk pin uses current search even before the next render frame');
+    assert.equal(pinsTest.w.document.getElementById('pinned-count').textContent,'1 titolo fissato','bulk pin uses current search even before the next render frame');
     input(pinsTest.w,'.search-input','');
     pinsTest.w.document.getElementById('pin-visible').click();
     await delay(80);
-    assert.equal(pinsTest.w.document.getElementById('pinned-count').textContent,'2 film fissati','select-visible pins every currently matching movie and excludes series');
+    assert.equal(pinsTest.w.document.getElementById('pinned-count').textContent,'3 titoli fissati','select-visible pins every currently matching title including series');
     input(pinsTest.w,'.search-input','gamma');
     await delay(60);
     assert.equal(visible(pinsTest.w).length,3,'all pinned movies ignore subsequent searches');
+    pinsTest.w.document.querySelector('#online-tv3 .pin-card-button').click();
+    await delay(50);
+    assert.equal(pinsTest.w.document.getElementById('pinned-count').textContent,'2 titoli fissati','TV series can be unpinned individually');
+    assert.equal(pinsTest.w.document.querySelector('#online-tv3 .pin-card-button').getAttribute('aria-pressed'),'false');
+    pinsTest.w.document.querySelector('#online-tv3 .pin-card-button').click();
+    await delay(50);
+    assert.equal(pinsTest.w.document.getElementById('pinned-count').textContent,'3 titoli fissati','TV series can be pinned individually again');
+    pinsTest.w.document.querySelector('.filter-media-type[data-value="movie"]').click();
+    await delay(60);
+    assert.equal(visible(pinsTest.w).length,3,'pinned TV series remain visible under the movie-only filter');
+    pinsTest.w.Math.random=()=>0.9999;
     pinsTest.w.document.querySelector('.dice-button').click();
-    await until(()=>pinsTest.w.document.getElementById('pin-status').textContent.startsWith('🎲 '),'dice picks a pinned movie');
-    assert.ok(['online-mid1','online-mid2'].includes(pinsTest.w.document.querySelector('.card-dice-picked')?.id),'dice selection is one of the pinned films');
+    await until(()=>pinsTest.w.document.getElementById('pin-status').textContent.startsWith('🎲 '),'dice picks a pinned title');
+    assert.equal(pinsTest.w.document.querySelector('.card-dice-picked')?.id,'online-tv3','dice can choose a pinned TV series');
+    pinsTest.w.Math.random=()=>0;
     pinsTest.w.document.querySelector('.dice-button').click();
     await until(()=>pinsTest.w.document.getElementById('pin-status').textContent.startsWith('🎲 '),'dice can be rolled again');
     const selectedCard=pinsTest.w.document.querySelector('.card-dice-picked');
-    assert.ok(selectedCard && ['online-mid1','online-mid2'].includes(selectedCard.id),'repeat roll still chooses a pinned movie');
+    assert.ok(selectedCard && ['online-mid1','online-mid2','online-tv3'].includes(selectedCard.id),'repeat roll chooses among all pinned media');
     pinsTest.dom.window.close();
     const third=setup({fail:401});
     third.w.console.error=()=>{};
@@ -136,5 +157,5 @@ function clickNav(w, path) { w.document.querySelector('.navbar-nav a[href="'+pat
     await until(()=>third.calls.length>failedCalls,'retry after reconnect');
     await until(()=>third.w.document.getElementById('#risultati').textContent==='3 titoli','refresh finishes after reconnect');
     third.dom.window.close();
-    console.log('PASS: persistenza, badge lista, voto, durata, pin persistenti, selezione visibili, dado ripetibile, filtri, ricerca, ordinamenti e cache.');
+    console.log('PASS: persistenza, filtro film/serie, badge lista, voto, durata, pin persistenti per entrambi i tipi, dado e filtri.');
 })().catch(e=>{console.error(e);process.exitCode=1});

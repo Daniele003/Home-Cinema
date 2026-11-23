@@ -9,3 +9,5 @@
 - [x] Mostrare sulla card la durata e il voto che ho dato io al film quando sono disponibili.
 - [x] Permettere di fissare uno o più film, con anche un tasto per selezionare tutti quelli visualizzati secondo ricerca e filtri correnti (incluso un clic immediato prima del successivo aggiornamento grafico); i film fissati devono restare sempre visualizzati indipendentemente dai successivi parametri della ricerca e rimanere salvati se la pagina viene ricaricata; mantenere tutto in codice client, dato che non è possibile eseguire codice lato server.
 - [x] Utilizzare il dado per scegliere a caso uno dei film fissati e permettere di ripetere la scelta casuale all’infinito.
+- [x] Aggiungere un filtro che permetta di separare film e serie TV.
+- [x] Permettere di fissare le serie TV, non soltanto i film; il filtro per tipo deve continuare a rispettare la regola che i titoli fissati restano sempre visualizzati, e il dado deve poterli scegliere.

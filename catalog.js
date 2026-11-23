@@ -18,6 +18,7 @@
     const sortInput = document.getElementById('sort-select');
     const count = document.getElementById('#risultati');
     const listRow = document.getElementById('filtri-avanzati-liste');
+    const mediaTypeRow = document.getElementById('filtri-avanzati-tipo');
     const genreRow = document.getElementById('filtri-avanzati-generi');
     const collator = new Intl.Collator('it', { sensitivity: 'base', numeric: true });
     const views = {
@@ -51,10 +52,11 @@
                 query: typeof saved.query === 'string' ? saved.query : '',
                 lists: new Set(Array.isArray(saved.lists) ? saved.lists.map(String) : []),
                 genres: new Set(Array.isArray(saved.genres) ? saved.genres.map(String) : []),
+                mediaType: saved.mediaType === 'movie' || saved.mediaType === 'tv' ? saved.mediaType : '',
                 sort: VALID_SORTS.includes(saved.sort) ? saved.sort : ''
             };
         } catch (_) {
-            return { query: '', lists: new Set(), genres: new Set(), sort: '' };
+            return { query: '', lists: new Set(), genres: new Set(), mediaType: '', sort: '' };
         }
     }
 
@@ -63,7 +65,7 @@
         for (const [name, view] of Object.entries(views)) {
             state[name] = {
                 query: view.filters.query, lists: [...view.filters.lists],
-                genres: [...view.filters.genres], sort: view.filters.sort
+                genres: [...view.filters.genres], mediaType: view.filters.mediaType, sort: view.filters.sort
             };
         }
         try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (_) { /* storage facoltativo */ }
@@ -134,7 +136,7 @@
             const saved = JSON.parse(localStorage.getItem(PINNED_KEY) || '[]');
             if (!Array.isArray(saved)) return pinned;
             for (const entry of saved) {
-                if (!entry || !entry.item || entry.item.id == null || itemType(entry.item) !== 'movie') continue;
+                if (!entry || !entry.item || entry.item.id == null) continue;
                 pinned.set(itemKey(entry.item), {
                     item: entry.item,
                     sources: Array.isArray(entry.sources) ? entry.sources.map(String) : []
@@ -153,7 +155,7 @@
     }
 
     function updatePinnedCount() {
-        if (pinnedCount) pinnedCount.textContent = pinnedMovies.size + (pinnedMovies.size === 1 ? ' film fissato' : ' film fissati');
+        if (pinnedCount) pinnedCount.textContent = pinnedMovies.size + (pinnedMovies.size === 1 ? ' titolo fissato' : ' titoli fissati');
     }
 
     function ensurePinnedRecords(view) {
@@ -170,10 +172,10 @@
         record.node.dataset.pinned = String(record.pinned);
         const button = record.node.querySelector('.pin-card-button');
         if (!button) return;
-        button.hidden = itemType(record.item) !== 'movie';
+        const kind = itemType(record.item) === 'tv' ? 'la serie' : 'il film';
         button.setAttribute('aria-pressed', String(record.pinned));
-        button.setAttribute('aria-label', record.pinned ? 'Rimuovi dai film fissati' : 'Fissa questo film');
-        button.title = record.pinned ? 'Rimuovi dai film fissati' : 'Fissa questo film';
+        button.setAttribute('aria-label', record.pinned ? 'Rimuovi ' + kind + ' dai fissati' : 'Fissa ' + kind);
+        button.title = record.pinned ? 'Rimuovi ' + kind + ' dai fissati' : 'Fissa ' + kind;
         button.textContent = record.pinned ? '📌' : '📍';
     }
 
@@ -192,7 +194,7 @@
     }
 
     function matchesCurrentFilters(view, record) {
-        // I film già fissati restano visibili anche se non corrispondono ai filtri.
+        // I titoli già fissati restano visibili anche se non corrispondono ai filtri.
         if (pinnedMovies.has(itemKey(record.item))) return true;
         const query = normalize(view.filters.query.trim());
         const titles = [record.item.title, record.item.original_title, record.item.name, record.item.original_name].map(normalize);
@@ -200,18 +202,19 @@
         if (view.filters.lists.size && ![...view.filters.lists].some(name => record.sources.has(name))) return false;
         const genres = itemGenres(record.item);
         if (view.filters.genres.size && ![...view.filters.genres].some(id => genres.includes(id))) return false;
+        if (view.filters.mediaType && itemType(record.item) !== view.filters.mediaType) return false;
         return true;
     }
 
     function togglePinned(record) {
-        if (!record || itemType(record.item) !== 'movie') return;
+        if (!record) return;
         const key = itemKey(record.item);
         if (pinnedMovies.has(key)) {
             pinnedMovies.delete(key);
-            if (pinStatus) pinStatus.textContent = 'Film rimosso dai fissati.';
+            if (pinStatus) pinStatus.textContent = 'Titolo rimosso dai fissati.';
         } else {
             pinnedMovies.set(key, { item: record.item, sources: [...record.sources] });
-            if (pinStatus) pinStatus.textContent = 'Film fissato in questo browser.';
+            if (pinStatus) pinStatus.textContent = 'Titolo fissato in questo browser.';
         }
         savePinnedMovies();
         for (const view of Object.values(views)) {
@@ -233,14 +236,14 @@
         const view = views[active];
         let newlyPinned = 0;
         for (const record of view.records.values()) {
-            if (itemType(record.item) !== 'movie' || !matchesCurrentFilters(view, record)) continue;
+            if (!matchesCurrentFilters(view, record)) continue;
             const key = itemKey(record.item);
             if (pinnedMovies.has(key)) continue;
             pinnedMovies.set(key, { item: record.item, sources: [...record.sources] });
             newlyPinned++;
         }
         if (!newlyPinned) {
-            if (pinStatus) pinStatus.textContent = 'Nessun nuovo film visibile da fissare.';
+            if (pinStatus) pinStatus.textContent = 'Nessun nuovo titolo visibile da fissare.';
             return;
         }
         savePinnedMovies();
@@ -249,14 +252,14 @@
             for (const record of view.records.values()) updatePinButton(record);
         }
         updatePinnedCount();
-        if (pinStatus) pinStatus.textContent = newlyPinned + (newlyPinned === 1 ? ' film fissato.' : ' film fissati.');
+        if (pinStatus) pinStatus.textContent = newlyPinned + (newlyPinned === 1 ? ' titolo fissato.' : ' titoli fissati.');
         scheduleRender();
     }
 
     function pickPinnedAtRandom() {
         const choices = [...pinnedMovies.values()];
         if (!choices.length) {
-            if (pinStatus) pinStatus.textContent = 'Fissa almeno un film prima di usare il dado.';
+            if (pinStatus) pinStatus.textContent = 'Fissa almeno un titolo prima di usare il dado.';
             return;
         }
         if (pinStatus) pinStatus.textContent = 'Estrazione in corso…';
@@ -386,6 +389,7 @@
             itemGenres(record.item).forEach(id => genres.add(id));
         }
         listRow.replaceChildren();
+        mediaTypeRow.replaceChildren();
         genreRow.replaceChildren();
         for (const name of [...lists].sort(collator.compare)) {
             const template = document.createElement('template');
@@ -402,6 +406,13 @@
             button.dataset.value = id;
             button.setAttribute('aria-pressed', String(view.filters.genres.has(id)));
             genreRow.appendChild(button);
+        }
+        for (const [type, label] of [['movie', 'Film'], ['tv', 'Serie TV']]) {
+            const template = document.createElement('template');
+            template.innerHTML = html_filtro_tipo(type, label);
+            const button = template.content.firstElementChild;
+            button.setAttribute('aria-pressed', String(view.filters.mediaType === type));
+            mediaTypeRow.appendChild(button);
         }
     }
 
@@ -451,7 +462,8 @@
             const matchesList = !view.filters.lists.size || [...view.filters.lists].some(name => record.sources.has(name));
             const genres = itemGenres(item);
             const matchesGenre = !view.filters.genres.size || [...view.filters.genres].some(id => genres.includes(id));
-            const show = record.pinned || (matchesTitle && matchesList && matchesGenre);
+            const matchesMediaType = !view.filters.mediaType || itemType(item) === view.filters.mediaType;
+            const show = record.pinned || (matchesTitle && matchesList && matchesGenre && matchesMediaType);
             record.node.style.display = show ? '' : 'none';
             record.node.style.order = String(index);
             record.node.dataset.lists = JSON.stringify([...record.sources]);
@@ -517,6 +529,14 @@
     genreRow.addEventListener('click', event => {
         const button = event.target.closest('.filter-genre');
         if (button) toggleFilter('genres', button.dataset.value);
+    });
+    mediaTypeRow.addEventListener('click', event => {
+        const button = event.target.closest('.filter-media-type');
+        if (!button) return;
+        const type = button.dataset.value;
+        views[active].filters.mediaType = views[active].filters.mediaType === type ? '' : type;
+        saveState();
+        scheduleRender();
     });
     document.getElementById('pin-visible').addEventListener('click', pinVisibleFilms);
     document.querySelector('.dice-button').addEventListener('click', pickPinnedAtRandom);

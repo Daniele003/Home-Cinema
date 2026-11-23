@@ -45,7 +45,7 @@ function html_testa(page_title) {
         + '<input type="checkbox" id="change-theme" class="theme-toggle" onchange="change_theme()">'
         + '<label for="change-theme" class="theme-label">🌙</label>'
         + '</div>'
-        + '<div id="fordice"><button type="button" class="dice-button" aria-label="Estrai un film fissato a caso" title="Estrai un altro film fissato">🎲</button></div>'
+        + '<div id="fordice"><button type="button" class="dice-button" aria-label="Estrai un titolo fissato a caso" title="Estrai un altro titolo fissato">🎲</button></div>'
         + '</div>'
         + '</nav>'
         + '<div class="search-filters-container">'
@@ -55,11 +55,12 @@ function html_testa(page_title) {
         + '<span class="results-count" id="#risultati" aria-live="polite">0 titoli</span>'
         + '</div>'
         + '<div class="pin-controls">'
-        + '<button type="button" id="pin-visible" class="pin-visible-button">📌 Fissa tutti i film visualizzati</button>'
-        + '<span id="pinned-count" class="pinned-count" aria-live="polite">0 film fissati</span>'
+        + '<button type="button" id="pin-visible" class="pin-visible-button">📌 Fissa tutti i titoli visualizzati</button>'
+        + '<span id="pinned-count" class="pinned-count" aria-live="polite">0 titoli fissati</span>'
         + '<span id="pin-status" class="pin-status" aria-live="polite"></span>'
         + '</div>'
         + '<div class="filters-row" id="filtri-avanzati-liste"></div>'
+        + '<div class="filters-row" id="filtri-avanzati-tipo"></div>'
         + '<div class="filters-row" id="filtri-avanzati-generi"></div>'
         + '<div class="sort-container">'
         + '<label for="sort-select" class="sort-label">Ordina per:</label>'
@@ -147,4 +148,8 @@ function html_filtro_lista(nome) {
 
 function html_filtro_genere(id, nome) {
     return '<button type="button" id="g' + escape_html(id) + '" class="filter filter-genre" aria-pressed="false" title="Filtra per genere ' + escape_html(nome) + '">' + escape_html(nome) + '</button>';
+}
+
+function html_filtro_tipo(tipo, nome) {
+    return '<button type="button" class="filter filter-media-type" data-value="' + escape_html(tipo) + '" aria-pressed="false" title="Mostra solo ' + escape_html(nome.toLowerCase()) + '">' + escape_html(nome) + '</button>';
 }
