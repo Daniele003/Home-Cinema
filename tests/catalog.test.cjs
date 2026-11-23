@@ -134,6 +134,17 @@ function clickNav(w, path) { w.document.querySelector('.navbar-nav a[href="'+pat
     pinsTest.w.document.querySelector('#online-tv3 .pin-card-button').click();
     await delay(50);
     assert.equal(pinsTest.w.document.getElementById('pinned-count').textContent,'3 titoli fissati','TV series can be pinned individually again');
+    input(pinsTest.w,'.search-input','alpha');
+    await delay(60);
+    pinsTest.w.document.querySelector('#online-mid2 .pin-card-button').click();
+    await delay(60);
+    assert.equal(pinsTest.w.document.getElementById('pinned-count').textContent,'2 titoli fissati','a movie can be removed from pinned titles');
+    assert.equal(pinsTest.w.document.getElementById('online-mid2').style.display,'none','an unpinned movie that fails the search is hidden');
+    input(pinsTest.w,'.search-input','');
+    input(pinsTest.w,'#sort-select','Titolo');
+    await delay(60);
+    const orderedAfterUnpin=[...visible(pinsTest.w)].sort((a,b)=>Number(a.style.order)-Number(b.style.order));
+    assert.deepEqual(orderedAfterUnpin.map(card=>card.id),['online-mid1','online-tv3','online-mid2'],'an unpinned movie returns to the catalog ordering');
     pinsTest.w.document.querySelector('.filter-media-type[data-value="movie"]').click();
     await delay(60);
     assert.equal(visible(pinsTest.w).length,3,'pinned TV series remain visible under the movie-only filter');
