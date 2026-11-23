@@ -3,16 +3,24 @@
    ======================================== */
 
 :root {
-    --color-primary: #2c3e50;
-    --color-primary-light: #34495e;
-    --color-accent: #e74c3c;
-    --color-accent-light: #ec7063;
-    --color-bg: #f8f9fa;
-    --color-bg-secondary: #ecf0f1;
-    --color-text: #2c3e50;
-    --color-text-light: #7f8c8d;
-    --color-border: #bdc3c7;
+    --color-primary: #19394b;
+    --color-primary-light: #28566a;
+    --color-accent: #167b75;
+    --color-accent-light: #26958b;
+    --color-bg: #f4f7f5;
+    --color-bg-secondary: #e8efec;
+    --color-text: #19394b;
+    --color-text-light: #637b82;
+    --color-border: #c4d2cd;
     --color-card-bg: #ffffff;
+    --nav-surface: #f8fbf9;
+    --filters-surface: linear-gradient(135deg,#e8efec,#f1f5f2 60%,#e3edeb);
+    --filter-surface: #f8fbf9;
+    --filter-border: #bfd0ca;
+    --filter-text: #285263;
+    --filter-hover: #245c69;
+    --filter-hover-text: #ffffff;
+    --filter-active-text: #ffffff;
 }
 
 body {

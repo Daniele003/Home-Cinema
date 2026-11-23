@@ -646,6 +646,25 @@ header {
 .navbar-nav { gap: .55rem; }
 .nav-link { display: inline-block; padding: .55rem .85rem; border: 0; border-radius: 999px; transition: background-color .2s, color .2s, transform .2s; }
 .nav-link:hover { background: color-mix(in srgb, var(--color-accent) 12%, transparent); transform: translateY(-1px); }
+.navbar-container { background: linear-gradient(115deg, var(--nav-surface), var(--color-card-bg)); }
+.navbar-nav .nav-link { font-weight: 650; letter-spacing: .01em; border: 1px solid transparent; }
+.navbar-nav .nav-link:hover { border-color: color-mix(in srgb, var(--color-accent) 28%, transparent); }
+.search-filters-container { background: var(--filters-surface); }
+.filters-row { padding: .18rem 0; }
+.filters-row#filtri-avanzati-liste { padding: .55rem .7rem; border-radius: 15px; background: color-mix(in srgb, var(--filter-surface) 78%, transparent); }
+.filter { border: 1px solid var(--filter-border); background: var(--filter-surface); color: var(--filter-text); box-shadow: 0 2px 7px rgba(22,36,52,.045); font-weight: 600; }
+.filter:hover:not(.hidden) { background: var(--filter-hover); color: var(--filter-hover-text); border-color: var(--filter-hover); transform: translateY(-2px); box-shadow: 0 7px 16px color-mix(in srgb, var(--color-accent) 17%, transparent); }
+.filter[aria-pressed="true"] { background: var(--color-accent); border-color: var(--color-accent); color: var(--filter-active-text); box-shadow: 0 5px 14px color-mix(in srgb, var(--color-accent) 28%, transparent); }
+.filter-media-type { min-height: 40px; padding-inline: 1.05rem; }
+.btn-filters { background: var(--color-accent); box-shadow: 0 5px 14px color-mix(in srgb, var(--color-accent) 26%, transparent); }
+.sort-label { letter-spacing: .015em; }
+@media (max-width: 600px) {
+    .navbar-container { grid-template-columns: 1fr auto; }
+    .navbar-nav { padding: .2rem 0; }
+    .navbar-nav .nav-link { border-radius: 10px; padding: .5rem .7rem; }
+    .filters-row#filtri-avanzati-liste { padding: .45rem; }
+    .filter { box-shadow: none; }
+}
 #fordice .dice-button { width: 46px; height: 46px; border-radius: 50%; font-size: 1.25rem; box-shadow: 0 4px 14px rgba(20,30,40,.12); }
 #fordice .dice-button:hover { transform: rotate(12deg) scale(1.06); }
 .search-filters-container { padding: 1rem clamp(1rem,3vw,2.5rem) 1.15rem; gap: .85rem; }
