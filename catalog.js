@@ -35,6 +35,7 @@
     const pinnedMovies = readPinnedMovies();
     const pinStatus = document.getElementById('pin-status');
     const pinnedCount = document.getElementById('pinned-count');
+    const clearPinnedButton = document.getElementById('clear-pinned');
 
     function createView(name) {
         return {
@@ -156,6 +157,7 @@
 
     function updatePinnedCount() {
         if (pinnedCount) pinnedCount.textContent = pinnedMovies.size + (pinnedMovies.size === 1 ? ' titolo fissato' : ' titoli fissati');
+        if (clearPinnedButton) clearPinnedButton.disabled = pinnedMovies.size === 0;
     }
 
     function ensurePinnedRecords(view) {
@@ -253,6 +255,29 @@
         }
         updatePinnedCount();
         if (pinStatus) pinStatus.textContent = newlyPinned + (newlyPinned === 1 ? ' titolo fissato.' : ' titoli fissati.');
+        scheduleRender();
+    }
+
+    function clearPinnedTitles() {
+        if (!pinnedMovies.size) {
+            if (pinStatus) pinStatus.textContent = 'Non ci sono titoli fissati da svuotare.';
+            return;
+        }
+        pinnedMovies.clear();
+        savePinnedMovies();
+        for (const view of Object.values(views)) {
+            for (const [recordKey, record] of view.records) {
+                record.pinned = false;
+                if (record.pinOnly) {
+                    record.node?.remove();
+                    view.records.delete(recordKey);
+                } else {
+                    updatePinButton(record);
+                }
+            }
+        }
+        updatePinnedCount();
+        if (pinStatus) pinStatus.textContent = 'Elenco dei titoli fissati svuotato.';
         scheduleRender();
     }
 
@@ -539,6 +564,7 @@
         scheduleRender();
     });
     document.getElementById('pin-visible').addEventListener('click', pinVisibleFilms);
+    clearPinnedButton.addEventListener('click', clearPinnedTitles);
     document.querySelector('.dice-button').addEventListener('click', pickPinnedAtRandom);
     for (const view of Object.values(views)) {
         view.main.addEventListener('click', event => {

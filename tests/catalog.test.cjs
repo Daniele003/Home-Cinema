@@ -9,7 +9,7 @@ const code = fs.readFileSync(base + 'catalog.js', 'utf8');
 const indexedDB = new IDBFactory();
 const html = `<!DOCTYPE html><html><head></head><body>
 <nav><ul class="navbar-nav"><li><a href="home.html">Online</a></li><li><a href="local.html">Locale</a></li></ul></nav><div id="fordice"><button class="dice-button"></button></div>
-<input type="search" class="search-input"><span id="#risultati"></span><button id="pin-visible"></button><span id="pinned-count"></span><span id="pin-status"></span><div id="filtri-avanzati-liste"></div><div id="filtri-avanzati-tipo"></div><div id="filtri-avanzati-generi"></div><input id="sort-select">
+<input type="search" class="search-input"><span id="#risultati"></span><button id="pin-visible"></button><span id="pinned-count"></span><button id="clear-pinned" disabled></button><span id="pin-status"></span><div id="filtri-avanzati-liste"></div><div id="filtri-avanzati-tipo"></div><div id="filtri-avanzati-generi"></div><input id="sort-select">
 <main id="catalog-online"></main><main id="catalog-local"></main></body></html>`;
 const a = { id: 1, title:'Àlpha', original_title:'Alpha', genre_ids:[28], vote_average:7.5, vote_count:100, release_date:'2020-01-01', overview:'one', media_type:'movie' };
 const b = { id: 2, title:'Beta', original_title:'Beta', genre_ids:[35], vote_average:9, vote_count:50, release_date:'1999-04-01', overview:'two', media_type:'movie' };
@@ -158,6 +158,23 @@ function clickNav(w, path) { w.document.querySelector('.navbar-nav a[href="'+pat
     const selectedCard=pinsTest.w.document.querySelector('.card-dice-picked');
     assert.ok(selectedCard && ['online-mid1','online-mid2','online-tv3'].includes(selectedCard.id),'repeat roll chooses among all pinned media');
     pinsTest.dom.window.close();
+    const clearTest=setup();
+    await until(()=>clearTest.w.document.querySelectorAll('#catalog-online .card').length===3,'cards available for clear-all test');
+    await until(()=>!clearTest.w.document.getElementById('#risultati').textContent.includes('caricamento'),'catalog ready for clear-all test');
+    clearTest.w.document.getElementById('pin-visible').click();
+    await delay(60);
+    assert.equal(clearTest.w.document.getElementById('clear-pinned').disabled,false,'clear-all control enables when there are pinned titles');
+    input(clearTest.w,'.search-input','gamma');
+    await delay(60);
+    assert.equal(visible(clearTest.w).length,3,'pinned titles ignore search before clearing');
+    clearTest.w.document.getElementById('clear-pinned').click();
+    await delay(60);
+    assert.equal(clearTest.w.document.getElementById('pinned-count').textContent,'0 titoli fissati','clear-all empties pinned count');
+    assert.equal(clearTest.w.document.getElementById('clear-pinned').disabled,true,'clear-all control disables when list is empty');
+    assert.equal(JSON.parse(clearTest.w.localStorage.getItem('homecinema:pinned-movies:v1')).length,0,'empty list persists in localStorage');
+    assert.equal(visible(clearTest.w).length,1,'clearing restores the current search filter');
+    assert.equal(visible(clearTest.w)[0].id,'online-tv3');
+    clearTest.dom.window.close();
     const third=setup({fail:401});
     third.w.console.error=()=>{};
     await until(()=>third.w.document.getElementById('#risultati').textContent.includes('non riuscito'),'failed update shows saved cache');

@@ -57,6 +57,7 @@ function html_testa(page_title) {
         + '<div class="pin-controls">'
         + '<button type="button" id="pin-visible" class="pin-visible-button">📌 Fissa tutti i titoli visualizzati</button>'
         + '<span id="pinned-count" class="pinned-count" aria-live="polite">0 titoli fissati</span>'
+        + '<button type="button" id="clear-pinned" class="clear-pinned-button" aria-label="Svuota l’elenco dei titoli fissati" disabled>Svuota fissati</button>'
         + '<span id="pin-status" class="pin-status" aria-live="polite"></span>'
         + '</div>'
         + '<div class="filters-row" id="filtri-avanzati-liste"></div>'

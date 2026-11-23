@@ -208,6 +208,7 @@ header {
 }
 
 .pin-visible-button,
+.clear-pinned-button,
 .dice-button {
     border: 1px solid currentColor;
     border-radius: var(--border-radius);
@@ -219,9 +220,15 @@ header {
 }
 
 .pin-visible-button:hover,
+.clear-pinned-button:hover:not(:disabled),
 .dice-button:hover {
     transform: translateY(-1px);
     box-shadow: var(--shadow-sm);
+}
+
+.clear-pinned-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
 }
 
 .pinned-count,
